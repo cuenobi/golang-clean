@@ -6,77 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cuenobi/golang-clean/internal/application/dto"
-	"github.com/cuenobi/golang-clean/internal/application/usecase"
+	dto "github.com/cuenobi/golang-clean/internal/application/dto/order"
+	usecase "github.com/cuenobi/golang-clean/internal/application/usecase/order"
 	"github.com/cuenobi/golang-clean/internal/domain/entity"
 	"github.com/cuenobi/golang-clean/internal/domain/event"
+	"github.com/cuenobi/golang-clean/internal/domain/valueobject"
 	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 )
 
-type orderUseCaseSuite struct {
-	suite.Suite
-}
-
-func TestOrderUseCaseSuite(t *testing.T) {
-	suite.Run(t, new(orderUseCaseSuite))
-}
-
-func (s *orderUseCaseSuite) TestCRUDFlow() {
-	repo := newOrderRepoMock()
-	tx := &txMock{}
-	outbox := &outboxWriterMock{}
-	clock := fixedClock{now: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)}
-	idGen := fixedID{id: "ord_123"}
-
-	uc := usecase.NewOrderUseCase(repo, tx, outbox, clock, idGen)
-
-	created, err := uc.CreateOrder(context.Background(), dto.CreateOrderRequest{
-		CustomerID:     "cus_1",
-		Currency:       "USD",
-		Amount:         100,
-		IdempotencyKey: "idem-1",
-	})
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "ord_123", created.ID)
-	require.True(s.T(), outbox.called)
-
-	duplicate, err := uc.CreateOrder(context.Background(), dto.CreateOrderRequest{
-		CustomerID:     "cus_1",
-		Currency:       "USD",
-		Amount:         100,
-		IdempotencyKey: "idem-1",
-	})
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), created.ID, duplicate.ID)
-
-	got, err := uc.GetOrder(context.Background(), "ord_123")
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "cus_1", got.CustomerID)
-
-	updated, err := uc.UpdateOrder(context.Background(), "ord_123", dto.UpdateOrderRequest{
-		CustomerID: "cus_2",
-		Currency:   "THB",
-		Amount:     200,
-	})
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "cus_2", updated.CustomerID)
-	require.Equal(s.T(), "THB", updated.Currency)
-	require.Equal(s.T(), int64(200), updated.Amount)
-
-	list, err := uc.ListOrders(context.Background())
-	require.NoError(s.T(), err)
-	require.Len(s.T(), list, 1)
-
-	err = uc.DeleteOrder(context.Background(), "ord_123")
-	require.NoError(s.T(), err)
-
-	_, err = uc.GetOrder(context.Background(), "ord_123")
-	require.Error(s.T(), err)
-}
-
-// Intentionally small hand-rolled mocks for bootstrap tests.
 type orderRepoMock struct {
 	orders map[string]*entity.Order
 }
@@ -138,11 +76,11 @@ func (m *txMock) WithinTransaction(ctx context.Context, fn func(context.Context)
 }
 
 type outboxWriterMock struct {
-	called bool
+	called int
 }
 
 func (m *outboxWriterMock) EnqueueOrderCreated(ctx context.Context, eventPayload event.OrderCreated) error {
-	m.called = true
+	m.called++
 	return nil
 }
 
@@ -160,4 +98,38 @@ type fixedID struct {
 
 func (f fixedID) NewID() string {
 	return f.id
+}
+
+func newOrderUseCaseForTest(id string, now time.Time) (*usecase.OrderUseCase, *orderRepoMock, *outboxWriterMock) {
+	repo := newOrderRepoMock()
+	outbox := &outboxWriterMock{}
+	uc := usecase.NewOrderUseCase(repo, &txMock{}, outbox, fixedClock{now: now}, fixedID{id: id})
+	return uc, repo, outbox
+}
+
+func seedOrder(
+	t *testing.T,
+	repo *orderRepoMock,
+	id string,
+	customerID string,
+	currency string,
+	amount int64,
+	now time.Time,
+) {
+	t.Helper()
+
+	money, err := valueobject.NewMoney(currency, amount)
+	require.NoError(t, err)
+	order, err := entity.NewOrder(id, customerID, "", money, now)
+	require.NoError(t, err)
+	require.NoError(t, repo.Save(context.Background(), order))
+}
+
+func createOrderReq(idempotencyKey string) dto.CreateOrderRequest {
+	return dto.CreateOrderRequest{
+		CustomerID:     "cus_1",
+		Currency:       "USD",
+		Amount:         100,
+		IdempotencyKey: idempotencyKey,
+	}
 }

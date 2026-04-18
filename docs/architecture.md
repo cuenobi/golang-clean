@@ -52,9 +52,5 @@ This project now uses a **merged layer style** to reduce over-engineering:
 - Keeps clean-layer boundaries while staying practical for a small/medium service.
 - Easier to publish and maintain without deep directory nesting.
 
-## Governance Docs
-- ADRs: `docs/phase2/adr/`
-- NFR/SLA: `docs/phase2/nfr-sla.md`
-- Ownership/On-call: `docs/phase2/ownership-oncall.md`
-- Risk/Trade-offs: `docs/phase2/risk-tradeoff-matrix.md`
-- Error Catalog: `docs/phase2/error-code-catalog.md`
+## Governance Note
+- If governance artifacts are needed (ADR/NFR/SLA/ownership/risk matrix), keep them under `docs/` and version them with code changes.

@@ -1,4 +1,4 @@
-package dto
+package orderdto
 
 type CreateOrderRequest struct {
 	CustomerID     string

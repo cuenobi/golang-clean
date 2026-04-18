@@ -1,6 +1,6 @@
 package http
 
-import "github.com/cuenobi/golang-clean/internal/application/dto"
+import dto "github.com/cuenobi/golang-clean/internal/application/dto/order"
 
 func toCreateOrderDTO(req CreateOrderRequest, idempotencyKey string) dto.CreateOrderRequest {
 	return dto.CreateOrderRequest{

@@ -6,49 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cuenobi/golang-clean/internal/application/dto"
-	"github.com/cuenobi/golang-clean/internal/application/usecase"
+	dto "github.com/cuenobi/golang-clean/internal/application/dto/user"
+	usecase "github.com/cuenobi/golang-clean/internal/application/usecase/user"
 	"github.com/cuenobi/golang-clean/internal/domain/entity"
+	"github.com/cuenobi/golang-clean/internal/domain/valueobject"
 	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 )
-
-type userUseCaseSuite struct {
-	suite.Suite
-}
-
-func TestUserUseCaseSuite(t *testing.T) {
-	suite.Run(t, new(userUseCaseSuite))
-}
-
-func (s *userUseCaseSuite) TestCRUDFlow() {
-	now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	repo := newUserRepoMock()
-	uc := usecase.NewUserUseCase(repo, userFixedClock{now: now}, userFixedID{id: "usr_1"})
-
-	created, err := uc.CreateUser(context.Background(), dto.CreateUserRequest{Name: "Alice", Email: "alice@example.com"})
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "usr_1", created.ID)
-
-	got, err := uc.GetUser(context.Background(), "usr_1")
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "Alice", got.Name)
-
-	updated, err := uc.UpdateUser(context.Background(), "usr_1", dto.UpdateUserRequest{Name: "Alice A", Email: "alice.a@example.com"})
-	require.NoError(s.T(), err)
-	require.Equal(s.T(), "Alice A", updated.Name)
-
-	list, err := uc.ListUsers(context.Background())
-	require.NoError(s.T(), err)
-	require.Len(s.T(), list, 1)
-
-	err = uc.DeleteUser(context.Background(), "usr_1")
-	require.NoError(s.T(), err)
-
-	_, err = uc.GetUser(context.Background(), "usr_1")
-	require.Error(s.T(), err)
-}
 
 type userRepoMock struct {
 	users map[string]*entity.User
@@ -108,10 +72,34 @@ type userFixedClock struct {
 	now time.Time
 }
 
-func (f userFixedClock) Now() time.Time { return f.now }
+func (f userFixedClock) Now() time.Time {
+	return f.now
+}
 
 type userFixedID struct {
 	id string
 }
 
-func (f userFixedID) NewID() string { return f.id }
+func (f userFixedID) NewID() string {
+	return f.id
+}
+
+func newUserUseCaseForTest(id string, now time.Time) (*usecase.UserUseCase, *userRepoMock) {
+	repo := newUserRepoMock()
+	uc := usecase.NewUserUseCase(repo, userFixedClock{now: now}, userFixedID{id: id})
+	return uc, repo
+}
+
+func seedUser(t *testing.T, repo *userRepoMock, id, name, email string, now time.Time) {
+	t.Helper()
+
+	voEmail, err := valueobject.NewEmail(email)
+	require.NoError(t, err)
+	user, err := entity.NewUser(id, name, voEmail, now)
+	require.NoError(t, err)
+	require.NoError(t, repo.Create(context.Background(), user))
+}
+
+func createUserReq() dto.CreateUserRequest {
+	return dto.CreateUserRequest{Name: "Alice", Email: "alice@example.com"}
+}

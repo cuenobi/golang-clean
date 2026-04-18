@@ -3,7 +3,7 @@ package in
 import (
 	"context"
 
-	"github.com/cuenobi/golang-clean/internal/application/dto"
+	dto "github.com/cuenobi/golang-clean/internal/application/dto/user"
 )
 
 type UserUseCase interface {

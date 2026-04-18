@@ -1,6 +1,6 @@
 package http
 
-import "github.com/cuenobi/golang-clean/internal/application/dto"
+import dto "github.com/cuenobi/golang-clean/internal/application/dto/user"
 
 func toCreateUserDTO(req CreateUserRequest) dto.CreateUserRequest {
 	return dto.CreateUserRequest{Name: req.Name, Email: req.Email}

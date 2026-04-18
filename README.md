@@ -76,24 +76,14 @@ make swagger
   - `4xx`: `warn`
   - `5xx`: `error`
 
-Environment variables:
-- `APP_NAME` (default: `golang-clean`)
-- `APP_ENV` (default: `dev`)
-- `LOG_LEVEL` (default: `info`, supported: `debug`, `info`, `warn`, `error`)
-- `AUTH_ENABLED` (default: `false`)
-- `API_KEY` (required when `AUTH_ENABLED=true`)
-- `RATE_LIMIT_ENABLED` (default: `true`)
-- `RATE_LIMIT_MAX` (default: `120`)
-- `RATE_LIMIT_WINDOW_SEC` (default: `60`)
-- `POSTGRES_SSL_MODE` (default: `disable`)
-- `OUTBOX_POLL_INTERVAL_MS` (default: `1000`)
-- `OUTBOX_BATCH_SIZE` (default: `50`)
-- `OUTBOX_MAX_RETRIES` (default: `5`)
-- `OUTBOX_RETRY_BACKOFF_MS` (default: `500`)
-- `OUTBOX_PROCESSING_TIMEOUT_MS` (default: `15000`)
-- `KAFKA_PUBLISH_TIMEOUT_MS` (default: `3000`)
-- `CIRCUIT_BREAKER_FAILURES` (default: `5`)
-- `CIRCUIT_BREAKER_OPEN_MS` (default: `30000`)
+Environment variables (full template: `config.example`):
+- App: `APP_NAME`, `APP_ENV`, `LOG_LEVEL`
+- HTTP: `HTTP_ADDRESS`, `HTTP_READ_TIMEOUT_SEC`, `HTTP_WRITE_TIMEOUT_SEC`, `READINESS_DB_TIMEOUT_MS`
+- Security: `AUTH_ENABLED`, `API_KEY`, `RATE_LIMIT_ENABLED`, `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_SEC`
+- PostgreSQL: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASS`, `POSTGRES_DB`, `POSTGRES_SSL_MODE`
+- Kafka: `KAFKA_BROKER`, `KAFKA_PUBLISH_TIMEOUT_MS`
+- Outbox: `OUTBOX_POLL_INTERVAL_MS`, `OUTBOX_BATCH_SIZE`, `OUTBOX_MAX_RETRIES`, `OUTBOX_RETRY_BACKOFF_MS`, `OUTBOX_PROCESSING_TIMEOUT_MS`
+- Circuit breaker: `CIRCUIT_BREAKER_FAILURES`, `CIRCUIT_BREAKER_OPEN_MS`
 
 ## Error Handling Contract (FE Mapping)
 All API errors are returned in a stable shape:

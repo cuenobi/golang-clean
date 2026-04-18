@@ -6,7 +6,8 @@ import (
 
 	"github.com/IBM/sarama"
 	_ "github.com/cuenobi/golang-clean/api/swagger"
-	"github.com/cuenobi/golang-clean/internal/application/usecase"
+	orderusecase "github.com/cuenobi/golang-clean/internal/application/usecase/order"
+	userusecase "github.com/cuenobi/golang-clean/internal/application/usecase/user"
 	messaginginfra "github.com/cuenobi/golang-clean/internal/infrastructure/messaging"
 	persistenceinfra "github.com/cuenobi/golang-clean/internal/infrastructure/persistence"
 	httpadapter "github.com/cuenobi/golang-clean/internal/interfaces/http/order"
@@ -43,9 +44,9 @@ func NewModule(cfg config.Config, db *gorm.DB) (*Module, error) {
 	publisher := messaginginfra.NewPublisher(producer, "order.created.v1")
 	clock := kernel.SystemClock{}
 	idgen := kernel.UUIDGenerator{}
-	useCase := usecase.NewOrderUseCase(repo, tx, outboxRepo, clock, idgen)
+	useCase := orderusecase.NewOrderUseCase(repo, tx, outboxRepo, clock, idgen)
 	userRepo := persistenceinfra.NewUserRepository(db)
-	userUC := usecase.NewUserUseCase(userRepo, clock, idgen)
+	userUC := userusecase.NewUserUseCase(userRepo, clock, idgen)
 
 	readTimeout := time.Duration(cfg.HTTPReadTimeout) * time.Second
 	writeTimeout := time.Duration(cfg.HTTPWriteTimeout) * time.Second

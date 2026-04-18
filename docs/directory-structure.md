@@ -15,11 +15,15 @@
 │   ├── bootstrap/                     # App bootstrap (config + db + module wiring)
 │   │
 │   ├── application/                   # Application layer (order + user together)
-│   │   ├── dto/                       # Request/response DTOs
+│   │   ├── dto/                       # DTOs grouped by module
+│   │   │   ├── order/
+│   │   │   └── user/
 │   │   ├── port/
 │   │   │   ├── in/                    # Input ports (use case contracts)
 │   │   │   └── out/                   # Output ports (repo/contracts)
-│   │   └── usecase/                   # Use case implementations
+│   │   └── usecase/                   # Use cases grouped by module
+│   │       ├── order/
+│   │       └── user/
 │   │
 │   ├── domain/                        # Domain layer (entities/value objects/events)
 │   │   ├── entity/
@@ -55,6 +59,7 @@
 │
 ├── migrations/                        # SQL migrations
 ├── docs/                              # Project architecture docs
+├── scripts/                           # Utility scripts for local development
 ├── tests/                             # Integration/contract test placeholders
 ├── pkg/utils/                         # Generic utility helpers
 └── tools/                             # Tool dependencies (mockery, swag)
@@ -68,4 +73,23 @@ Use case logic                 -> internal/application/usecase/
 HTTP endpoint                  -> internal/interfaces/http/<resource>/
 DB repository implementation   -> internal/infrastructure/persistence/
 Cross-cutting infra/utilities  -> internal/shared/
+```
+
+## Usecase File Convention
+
+```text
+internal/application/usecase/order/
+  usecase.go         # type + constructor + dependencies
+  create.go
+  get.go
+  list.go
+  update.go
+  delete.go
+  mapper.go
+  create_test.go
+  get_test.go
+  list_test.go
+  update_test.go
+  delete_test.go
+  test_helpers_test.go
 ```

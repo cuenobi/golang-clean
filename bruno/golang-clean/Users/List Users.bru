@@ -1,0 +1,17 @@
+meta {
+  name: List Users
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/users
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{userPermissionsRead}}
+}

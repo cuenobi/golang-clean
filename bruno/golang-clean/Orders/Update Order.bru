@@ -1,0 +1,26 @@
+meta {
+  name: Update Order
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/api/v1/orders/{{orderId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{orderPermissionsWrite}}
+}
+
+body:json {
+  {
+    "customer_id": "cus_2",
+    "currency": "THB",
+    "amount": 500
+  }
+}

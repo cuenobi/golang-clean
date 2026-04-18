@@ -26,7 +26,35 @@ make run-consumer
 make migrate-up
 make migrate-down
 make test
+make swagger
 ```
+
+## Docker Compose (Local Run)
+1. Start dependencies + run migrations:
+```bash
+docker compose --profile tools up --build migrate
+```
+2. Start API + Consumer:
+```bash
+docker compose up --build api consumer
+```
+3. Optional full stack:
+```bash
+docker compose up --build
+```
+
+Use `config.example` as environment template (copy to `.env` if you want custom local values).
+
+## Swaggo
+- Swagger UI endpoint: `GET /swagger/index.html`
+- Generate docs:
+```bash
+make swagger
+```
+
+## Bruno
+- Bruno collection path: `bruno/golang-clean`
+- Import this folder in Bruno and use `environments/local.bru`.
 
 ## Phase 1 Hardening
 - Authentication with API Key (`X-API-Key`) and permission-based authorization (`X-Permissions`).

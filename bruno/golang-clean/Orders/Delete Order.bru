@@ -1,0 +1,17 @@
+meta {
+  name: Delete Order
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/api/v1/orders/{{orderId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{orderPermissionsWrite}}
+}

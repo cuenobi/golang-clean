@@ -1,0 +1,17 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/api/v1/users/{{userId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{userPermissionsWrite}}
+}

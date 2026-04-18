@@ -14,10 +14,23 @@ type Handler struct {
 	db  *gorm.DB
 }
 
+type healthResponse struct {
+	Status  string `json:"status"`
+	Service string `json:"service,omitempty"`
+	Env     string `json:"env,omitempty"`
+	Reason  string `json:"reason,omitempty"`
+}
+
 func NewHandler(cfg config.Config, db *gorm.DB) *Handler {
 	return &Handler{cfg: cfg, db: db}
 }
 
+// Healthz godoc
+// @Summary Liveness probe
+// @Tags System
+// @Produce json
+// @Success 200 {object} healthResponse
+// @Router /healthz [get]
 func (h *Handler) Healthz(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "ok",
@@ -26,6 +39,13 @@ func (h *Handler) Healthz(c *fiber.Ctx) error {
 	})
 }
 
+// Readyz godoc
+// @Summary Readiness probe
+// @Tags System
+// @Produce json
+// @Success 200 {object} healthResponse
+// @Failure 503 {object} healthResponse
+// @Router /readyz [get]
 func (h *Handler) Readyz(c *fiber.Ctx) error {
 	sqlDB, err := h.db.DB()
 	if err != nil {

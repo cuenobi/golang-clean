@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
+	_ "github.com/cuenobi/golang-clean/api/swagger"
 	"github.com/cuenobi/golang-clean/internal/application/usecase"
 	messaginginfra "github.com/cuenobi/golang-clean/internal/infrastructure/messaging"
 	persistenceinfra "github.com/cuenobi/golang-clean/internal/infrastructure/persistence"
@@ -20,6 +21,7 @@ import (
 	"github.com/cuenobi/golang-clean/internal/shared/metrics"
 	sharedpersistence "github.com/cuenobi/golang-clean/internal/shared/persistence"
 	"github.com/gofiber/fiber/v2"
+	fiberSwagger "github.com/gofiber/swagger"
 	"gorm.io/gorm"
 )
 
@@ -59,6 +61,7 @@ func NewModule(cfg config.Config, db *gorm.DB) (*Module, error) {
 	app.Use(httpx.RequestLogger(log))
 	systemHandler := systemhttp.NewHandler(cfg, db)
 	systemhttp.RegisterRoutes(app, systemHandler)
+	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
 
 	v1 := app.Group("/api/v1")
 	httpHandler := httpadapter.NewHandler(useCase)

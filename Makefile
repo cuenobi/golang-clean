@@ -1,6 +1,6 @@
 APP_NAME=golang-clean
 
-.PHONY: help run-api run-consumer migrate-up migrate-down test mockery fmt
+.PHONY: help run-api run-consumer migrate-up migrate-down test mockery swagger fmt
 
 help:
 	@echo "make run-api        - run HTTP API"
@@ -9,6 +9,7 @@ help:
 	@echo "make migrate-down   - rollback DB migration"
 	@echo "make test           - run unit tests"
 	@echo "make mockery        - generate mocks"
+	@echo "make swagger        - generate Swaggo docs"
 	@echo "make fmt            - format Go files"
 
 run-api:
@@ -28,6 +29,9 @@ test:
 
 mockery:
 	go generate ./...
+
+swagger:
+	go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/app/main.go -o api/swagger --parseDependency --parseInternal
 
 fmt:
 	gofmt -w $(shell find . -type f -name '*.go' -not -path './vendor/*')

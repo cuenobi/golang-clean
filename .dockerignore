@@ -1,0 +1,11 @@
+.git
+.gitignore
+.DS_Store
+.cursor
+bin
+tmp
+coverage.out
+*.log
+README.md
+docs
+tests

@@ -1,0 +1,27 @@
+meta {
+  name: Create Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{orderPermissionsWrite}}
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "customer_id": "cus_1",
+    "currency": "USD",
+    "amount": 100
+  }
+}

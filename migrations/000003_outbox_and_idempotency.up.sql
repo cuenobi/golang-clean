@@ -1,3 +1,5 @@
+BEGIN;
+
 ALTER TABLE orders
     ADD COLUMN IF NOT EXISTS idempotency_key VARCHAR(100);
 
@@ -25,3 +27,5 @@ CREATE INDEX IF NOT EXISTS idx_outbox_status_retry
 
 CREATE INDEX IF NOT EXISTS idx_outbox_event_type
     ON outbox_messages(event_type);
+
+COMMIT;

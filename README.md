@@ -30,6 +30,8 @@ make swagger
 ```
 
 ## Docker Compose (Local Run)
+Configure runtime values in `config.example` (used directly by `docker-compose.yml`).
+
 1. Start dependencies + run migrations:
 ```bash
 docker compose --profile tools up --build migrate
@@ -43,14 +45,13 @@ docker compose up --build api consumer
 docker compose up --build
 ```
 
-Use `config.example` as environment template (copy to `.env` if you want custom local values).
-
 ## Swaggo
 - Swagger UI endpoint: `GET /swagger/index.html`
 - Generate docs:
 ```bash
 make swagger
 ```
+- Generated artifacts live in `api/swagger/`.
 
 ## Bruno
 - Bruno collection path: `bruno/golang-clean`
@@ -121,9 +122,4 @@ Common error codes:
 See:
 - [docs/architecture.md](docs/architecture.md)
 - [docs/directory-structure.md](docs/directory-structure.md)
-- [docs/phase2/README.md](docs/phase2/README.md)
-- [docs/phase2/nfr-sla.md](docs/phase2/nfr-sla.md)
-- [docs/phase2/ownership-oncall.md](docs/phase2/ownership-oncall.md)
-- [docs/phase2/risk-tradeoff-matrix.md](docs/phase2/risk-tradeoff-matrix.md)
-- [docs/phase2/error-code-catalog.md](docs/phase2/error-code-catalog.md)
 - [.cursor/rules/clean-ddd-solid.mdc](.cursor/rules/clean-ddd-solid.mdc)

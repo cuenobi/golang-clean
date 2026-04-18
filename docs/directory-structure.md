@@ -1,7 +1,13 @@
-# Directory Structure (Merged Layer Style)
+# Directory Structure (Current)
 
 ```text
 .
+├── .cursor/rules/                     # Cursor rules (team conventions)
+├── config.example                     # Environment variable template
+├── docker-compose.yml                 # Local stack (postgres, kafka, api, consumer, migrate)
+├── Dockerfile                         # Service container build
+├── bruno/golang-clean/                # Bruno API collection + environments
+│
 ├── cmd/                               # Cobra entry commands
 │   └── app/main.go                    # Application entrypoint
 │
@@ -43,12 +49,15 @@
 │       ├── resilience/
 │       └── validator/
 │
-├── api/                               # OpenAPI/Swagger docs
+├── api/
+│   ├── openapi/                       # Static OpenAPI YAML
+│   └── swagger/                       # Swaggo generated docs
+│
 ├── migrations/                        # SQL migrations
-├── docs/                              # Project docs + governance pack (phase2)
+├── docs/                              # Project architecture docs
 ├── tests/                             # Integration/contract test placeholders
 ├── pkg/utils/                         # Generic utility helpers
-└── tools/                             # Tool dependencies (mockery)
+└── tools/                             # Tool dependencies (mockery, swag)
 ```
 
 ## Quick Placement Guide

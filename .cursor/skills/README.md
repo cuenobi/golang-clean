@@ -9,6 +9,8 @@ These skills are reusable prompt patterns for this repository.
   - Use when reviewing security risks based on OWASP Top 10.
 - `sonarqube-quality-gate.mdc`
   - Use when checking code quality and maintainability before merge.
+- `release-readiness-check.mdc`
+  - Use before merge/release/publish to verify architecture, docs, API contract, and operations readiness.
 
 ## How To Use
 - Reference the skill name in your prompt.

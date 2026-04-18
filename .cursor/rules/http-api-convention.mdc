@@ -1,0 +1,45 @@
+# HTTP API Convention Rules
+
+## Purpose
+Keep endpoint implementation consistent, testable, and FE-friendly.
+
+## Handler Structure
+- Keep handlers thin. No business orchestration in handlers.
+- Handler responsibilities only:
+  - parse request
+  - validate request
+  - call use case
+  - map response
+- Keep DTOs in `internal/interfaces/http/<module>/dto.go`.
+- Keep mapping in `mapper.go`.
+
+## Request Validation
+- Use `validator/v10` tags on request DTO fields.
+- Call shared validator from handlers for write operations.
+- Return validation errors via centralized error handler only.
+
+## Content-Type Rules
+- Write endpoints (`POST`, `PUT`, `PATCH`) must require `application/json`.
+- Return `unsupported_media_type` when content type is invalid.
+
+## Error Response Contract
+- Use centralized shape:
+  - `code`
+  - `type`
+  - `message`
+  - `data` (optional)
+  - `request_id`
+- Validation errors should include `data.violations` for FE mapping.
+- Do not leak stack traces or sensitive internals in response messages.
+
+## Operational Middleware
+- Keep middleware centralized in `internal/infrastructure/di/http_module.go`.
+- Use shared middleware under `internal/shared/httpx/` for:
+  - auth/permission checks
+  - CORS
+  - rate limit
+  - request context/logging
+
+## API Documentation
+- Keep Swagger annotations aligned with actual behavior.
+- Update Bruno examples when request/response contract changes.

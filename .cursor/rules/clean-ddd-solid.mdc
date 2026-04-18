@@ -24,7 +24,7 @@ These rules keep this project aligned with practical DDD + Clean Architecture + 
 
 ## HTTP Rules
 - Validate request body with validator tags.
-- Return errors through centralized error handler (`code`, `type`, `message`, `request_id`).
+- Return errors through centralized error handler (`code`, `type`, `message`, `data`, `request_id`).
 - Keep transport DTOs in `internal/interfaces/http/<resource>/dto.go`.
 - Mapping logic stays in `mapper.go`, not in handlers.
 
@@ -42,8 +42,11 @@ These rules keep this project aligned with practical DDD + Clean Architecture + 
 - Protect API routes with API key auth + permission checks when enabled.
 - Keep liveness/readiness and metrics endpoints available for operations.
 - Log structured JSON for Loki-compatible pipelines.
+- Keep time handling UTC-only across app/DB/logs.
 
 ## Team Workflow
 - Follow commit convention from `.cursor/rules/commit-message-standard.mdc`.
 - Follow security baseline from `.cursor/rules/security-owasp-top10.mdc`.
 - Follow quality baseline from `.cursor/rules/code-quality-sonarqube.mdc`.
+- Follow API convention from `.cursor/rules/http-api-convention.mdc`.
+- Follow UTC standard from `.cursor/rules/utc-time-standard.mdc`.

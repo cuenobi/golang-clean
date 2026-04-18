@@ -1,0 +1,24 @@
+# UTC Time Standard Rules
+
+## Purpose
+Enforce one time standard (UTC) across the whole project.
+
+## Core Rules
+- All persisted timestamps must use UTC semantics.
+- Database timestamp columns must use `TIMESTAMPTZ`.
+- Application clock providers must return UTC.
+- Logger timestamps must be UTC.
+- Container runtime timezone must be UTC (`TZ=UTC`).
+
+## Implementation Rules
+- Use centralized clock providers (do not call local time directly in business logic).
+- Normalize times at adapter boundaries when reading from external systems.
+- Keep DB session timezone set to UTC from persistence initialization.
+
+## API/Contract Rules
+- Return times in RFC3339-compatible UTC format when exposed externally.
+- Avoid locale-specific time rendering in API payloads.
+
+## Testing Rules
+- Tests must be deterministic and timezone-safe.
+- Use explicit UTC timestamps in fixtures and assertions.

@@ -1,0 +1,35 @@
+# Skill: Release Readiness Check
+
+## Goal
+Run a final consistency check before merge, release, or publishing as an example repo.
+
+## Checklist
+1. Architecture and boundaries
+- Clean architecture boundaries still respected.
+- No framework leakage into `domain` or `application`.
+- Use cases remain split by action and module.
+
+2. API contract
+- Request DTO validation exists and is accurate.
+- Error response shape follows contract (`code`, `type`, `message`, `data`, `request_id`).
+- Swagger docs align with actual endpoint behavior.
+- Bruno collection updated when contract changes.
+
+3. Security and quality baseline
+- OWASP rule set reviewed for touched areas.
+- Sonar-style quality gate expectations are satisfied.
+- No obvious critical/blocker issues introduced.
+
+4. Time and operational standards
+- UTC-only policy preserved.
+- CORS/rate-limit/body-limit remain centralized and env-driven.
+- Logging remains structured and request-correlated.
+
+5. Developer workflow
+- README and docs updated to current state.
+- Directory structure doc reflects actual code.
+- Commit message follows team format.
+
+## Output Format
+- Findings first (if any), grouped by severity.
+- Then concise pass/fail summary with remaining risks.

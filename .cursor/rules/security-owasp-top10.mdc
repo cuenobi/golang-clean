@@ -58,7 +58,7 @@ Apply OWASP Top 10 as the default secure coding baseline for this project.
 - Validate/allowlist host targets for any server-side fetch behavior.
 
 ## Project-Specific Security Requirements
-- Use centralized error format: `code`, `type`, `message`, `request_id`.
+- Use centralized error format: `code`, `type`, `message`, `data`, `request_id`.
 - Use UTC timestamps consistently for logs/events/auditability.
 - Keep health endpoints minimal and non-sensitive.
 

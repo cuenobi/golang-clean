@@ -9,7 +9,9 @@ import (
 )
 
 type Logger interface {
+	Debug(msg string, fields map[string]any)
 	Info(msg string, fields map[string]any)
+	Warn(msg string, fields map[string]any)
 	Error(msg string, err error, fields map[string]any)
 }
 
@@ -36,6 +38,22 @@ func New(cfg config.Config) Logger {
 
 func (l *structuredLogger) Info(msg string, fields map[string]any) {
 	ev := l.log.Info()
+	for key, val := range fields {
+		ev = ev.Interface(key, val)
+	}
+	ev.Msg(msg)
+}
+
+func (l *structuredLogger) Debug(msg string, fields map[string]any) {
+	ev := l.log.Debug()
+	for key, val := range fields {
+		ev = ev.Interface(key, val)
+	}
+	ev.Msg(msg)
+}
+
+func (l *structuredLogger) Warn(msg string, fields map[string]any) {
+	ev := l.log.Warn()
 	for key, val := range fields {
 		ev = ev.Interface(key, val)
 	}

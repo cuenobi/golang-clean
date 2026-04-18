@@ -1,75 +1,59 @@
-# Directory Structure (Tree Style)
+# Directory Structure (Merged Layer Style)
 
 ```text
 .
-├── cmd/                            # Application commands (Cobra)
-│   └── app/                        # Binary entrypoint
-│       └── main.go                 # Starts root command
+├── cmd/                               # Cobra entry commands
+│   └── app/main.go                    # Application entrypoint
 │
-├── internal/                       # Private application code
-│   ├── bootstrap/                  # App bootstrap wiring (config, db, module)
+├── internal/
+│   ├── bootstrap/                     # App bootstrap (config + db + module wiring)
 │   │
-│   ├── shared/                     # Shared technical components (no business logic)
-│   │   ├── config/                 # Environment/config loader
-│   │   ├── logger/                 # Logging abstraction
-│   │   ├── httpx/                  # HTTP shared helpers (error mapping, middleware utils)
-│   │   ├── kafkax/                 # Kafka shared config/helpers
-│   │   ├── persistence/            # Shared DB helpers (gorm init, tx context)
-│   │   ├── kernel/                 # Shared primitives/errors
+│   ├── application/                   # Application layer (order + user together)
+│   │   ├── dto/                       # Request/response DTOs
+│   │   ├── port/
+│   │   │   ├── in/                    # Input ports (use case contracts)
+│   │   │   └── out/                   # Output ports (repo/contracts)
+│   │   └── usecase/                   # Use case implementations
 │   │
-│   └── order/                      # Bounded context: Order
-│       ├── domain/                 # Domain layer (business rules only)
-│       │   ├── entity/             # Domain entities
-│       │   ├── valueobject/        # Value objects
-│       │   ├── event/              # Domain events
-│       │
-│       ├── application/            # Application layer (use case orchestration)
-│       │   ├── usecase/            # Use case implementations
-│       │   ├── port/
-│       │   │   ├── in/             # Input ports (called by adapters)
-│       │   │   └── out/            # Output ports (implemented by infra)
-│       │   ├── dto/                # Application DTOs
-│       │
-│       ├── interfaces/             # Interface adapters
-│       │   ├── http/               # Fiber handlers + request/response mappers
-│       │   └── messaging/          # Kafka consumer adapters + mappers
-│       │
-│       └── infrastructure/         # Technical implementations
-│           ├── persistence/        # GORM repository implementations
-│           ├── messaging/          # Kafka publisher/producer implementations
-│           └── di/                 # Dependency wiring for module
+│   ├── domain/                        # Domain layer (entities/value objects/events)
+│   │   ├── entity/
+│   │   ├── valueobject/
+│   │   └── event/
+│   │
+│   ├── interfaces/                    # Interface adapters
+│   │   ├── http/
+│   │   │   ├── order/                 # Order HTTP handlers
+│   │   │   └── user/                  # User HTTP handlers
+│   │   └── messaging/                 # Messaging consumer adapters
+│   │
+│   ├── infrastructure/                # Technical implementations
+│   │   ├── di/                        # Module composition root
+│   │   ├── messaging/                 # Kafka publisher adapters
+│   │   └── persistence/               # GORM repository adapters
+│   │
+│   └── shared/                        # Shared cross-cutting components
+│       ├── config/
+│       ├── httpx/
+│       ├── kafkax/
+│       ├── kernel/
+│       ├── logger/
+│       ├── persistence/
+│       └── validator/
 │
-│   └── user/                       # Bounded context: User (same layered pattern)
-│       ├── domain/
-│       ├── application/
-│       ├── interfaces/
-│       └── infrastructure/
-│
-├── api/                            # API documentation assets
-│   ├── openapi/                    # OpenAPI source file(s)
-│   └── swagger/                    # Generated swagger artifacts
-│
-├── migrations/                     # SQL migrations (golang-migrate)
-│
-├── tests/                          # Higher-level tests
-│   ├── integration/                # Integration tests
-│   └── contract/                   # API/event contract tests
-│
-├── pkg/
-│   └── utils/                      # Generic reusable utils (framework/business agnostic)
-│
-├── docs/                           # Project documentation
-├── scripts/                        # Dev scripts
-└── tools/                          # Tooling dependencies (e.g. mockery)
+├── api/                               # OpenAPI/Swagger docs
+├── migrations/                        # SQL migrations
+├── docs/                              # Project docs
+├── tests/                             # Integration/contract test placeholders
+├── pkg/utils/                         # Generic utility helpers
+└── tools/                             # Tool dependencies (mockery)
 ```
 
 ## Quick Placement Guide
 
 ```text
-New business rule?              -> internal/<context>/domain/
-New use case?                   -> internal/<context>/application/usecase/
-New repository interface?       -> internal/<context>/application/port/out/
-New DB/Kafka implementation?    -> internal/<context>/infrastructure/
-New HTTP endpoint?              -> internal/<context>/interfaces/http/
-Generic helper only?            -> pkg/utils/
+Business entity/value object   -> internal/domain/
+Use case logic                 -> internal/application/usecase/
+HTTP endpoint                  -> internal/interfaces/http/<resource>/
+DB repository implementation   -> internal/infrastructure/persistence/
+Cross-cutting infra/utilities  -> internal/shared/
 ```

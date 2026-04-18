@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"context"
 
-	"github.com/cuenobi/golang-clean/internal/order/infrastructure/di"
+	"github.com/cuenobi/golang-clean/internal/infrastructure/di"
 	"github.com/cuenobi/golang-clean/internal/shared/config"
 	"github.com/cuenobi/golang-clean/internal/shared/persistence"
 	"gorm.io/gorm"

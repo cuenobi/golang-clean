@@ -18,23 +18,27 @@ func RequestLogger(log logger.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()
 		err := c.Next()
+		status := c.Response().StatusCode()
 
 		fields := map[string]any{
 			"request_id": c.GetRespHeader("X-Request-ID"),
 			"method":     c.Method(),
 			"path":       c.Path(),
-			"status":     c.Response().StatusCode(),
+			"status":     status,
 			"latency_ms": time.Since(start).Milliseconds(),
 			"ip":         c.IP(),
 			"user_agent": c.Get("User-Agent"),
 		}
 
-		if err != nil {
+		switch {
+		case status >= fiber.StatusInternalServerError:
 			log.Error("http_request_failed", err, fields)
-			return err
+		case status >= fiber.StatusBadRequest:
+			log.Warn("http_request_client_error", fields)
+		default:
+			log.Info("http_request", fields)
 		}
 
-		log.Info("http_request", fields)
-		return nil
+		return err
 	}
 }

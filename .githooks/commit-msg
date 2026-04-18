@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+msg_file="$1"
+
+# first non-comment, non-empty line
+header="$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$msg_file" | head -n 1)"
+
+if [ -z "$header" ]; then
+  echo "Invalid commit message: empty header"
+  echo "Use: <type>(<scope>): <subject>"
+  exit 1
+fi
+
+# allow git-generated revert message
+case "$header" in
+  Revert\ \"*\")
+    exit 0
+    ;;
+esac
+
+pattern='^(feat|fix|refactor|perf|test|docs|build|ci|chore|revert)\([a-z0-9._-]+\)!?: [a-z].*$'
+
+if ! echo "$header" | grep -Eq "$pattern"; then
+  echo "Invalid commit message format."
+  echo "Expected: <type>(<scope>): <subject>"
+  echo "Example : feat(order): add idempotency key support"
+  exit 1
+fi
+
+# Keep header concise (recommended <= 72 chars)
+if [ "${#header}" -gt 72 ]; then
+  echo "Invalid commit message: header too long (${#header} > 72)"
+  echo "Please keep subject concise."
+  exit 1
+fi

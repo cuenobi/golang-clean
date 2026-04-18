@@ -42,3 +42,6 @@ These rules keep this project aligned with practical DDD + Clean Architecture + 
 - Protect API routes with API key auth + permission checks when enabled.
 - Keep liveness/readiness and metrics endpoints available for operations.
 - Log structured JSON for Loki-compatible pipelines.
+
+## Team Workflow
+- Follow commit convention from `.cursor/rules/commit-message-standard.mdc`.

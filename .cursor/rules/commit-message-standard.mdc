@@ -1,0 +1,57 @@
+# Team Commit Message Standard
+
+## Objective
+Use one shared commit message pattern across the team for readability, changelog quality, and faster code review.
+
+## Format
+`<type>(<scope>): <subject>`
+
+Examples:
+- `feat(order): add idempotency key support`
+- `fix(user): handle duplicate email conflict`
+- `refactor(application): split order usecase by action`
+- `docs(readme): update docker compose section`
+- `test(order): add create order usecase tests`
+
+## Allowed Types
+- `feat`: new feature
+- `fix`: bug fix
+- `refactor`: internal code improvement without behavior change
+- `perf`: performance improvement
+- `test`: add or update tests
+- `docs`: documentation only
+- `build`: build/tooling/dependency change
+- `ci`: CI/CD pipeline change
+- `chore`: maintenance task with no product behavior change
+- `revert`: revert previous commit
+
+## Scope Rules
+- Scope should map to module/layer when possible:
+  - module: `order`, `user`, `system`
+  - layer: `application`, `domain`, `infrastructure`, `interfaces`, `shared`
+  - docs/tooling: `readme`, `docker`, `swagger`, `bruno`, `migration`
+- Prefer one clear scope only.
+
+## Subject Rules
+- English only.
+- Imperative mood (e.g., `add`, `fix`, `update`, `remove`).
+- Lowercase first letter.
+- No trailing period.
+- Keep short (recommended <= 72 chars).
+
+## Body Rules (Optional But Recommended)
+- Add body for non-trivial changes:
+  - what changed
+  - why it changed
+  - impact/risk
+- Wrap lines at ~100 chars.
+
+## Breaking Changes
+- Append `!` after type/scope in header and describe migration in body.
+  - Example: `refactor(order)!: change outbox schema`
+
+## Team Review Gate
+- Reject commits that:
+  - use vague subjects (`update`, `fix stuff`, `WIP`)
+  - mix unrelated concerns in one commit
+  - do not follow `<type>(<scope>): <subject>` format

@@ -29,6 +29,17 @@ make test
 make swagger
 ```
 
+## Commit Message Standard (Team)
+- Pattern: `<type>(<scope>): <subject>`
+- Rule file: `.cursor/rules/commit-message-standard.mdc`
+- Git commit template: `.gitmessage`
+- Commit format guard: `.githooks/commit-msg`
+
+Install both template + hook:
+```bash
+make hooks-install
+```
+
 ## Docker Compose (Local Run)
 Configure runtime values in `config.example` (used directly by `docker-compose.yml`).
 

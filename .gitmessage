@@ -1,0 +1,22 @@
+# <type>(<scope>): <subject>
+#
+# Types:
+#   feat, fix, refactor, perf, test, docs, build, ci, chore, revert
+#
+# Scope examples:
+#   order, user, system, application, domain, infrastructure,
+#   interfaces, shared, readme, docker, swagger, bruno, migration
+#
+# Good examples:
+#   feat(order): add idempotency key support
+#   fix(user): handle duplicate email conflict
+#   refactor(application): split order usecase by action
+#
+# Body (optional):
+#   - what changed
+#   - why changed
+#   - impact/risk
+#
+# Breaking change:
+#   type(scope)!: subject
+#   and explain migration steps in body

@@ -7,6 +7,7 @@ type AppError struct {
 	Code       int
 	Type       string
 	Message    string
+	Data       any
 	Err        error
 }
 
@@ -28,8 +29,36 @@ func NewValidationError(message string) *AppError {
 	return &AppError{HTTPStatus: fiber.StatusBadRequest, Code: ErrorCodeValidation, Type: "validation_error", Message: message}
 }
 
+func NewValidationErrorWithData(message string, data any) *AppError {
+	return &AppError{
+		HTTPStatus: fiber.StatusBadRequest,
+		Code:       ErrorCodeValidation,
+		Type:       "validation_error",
+		Message:    message,
+		Data:       data,
+	}
+}
+
 func NewBadRequestError(message string) *AppError {
 	return &AppError{HTTPStatus: fiber.StatusBadRequest, Code: ErrorCodeBadRequest, Type: "bad_request", Message: message}
+}
+
+func NewPayloadTooLargeError(message string) *AppError {
+	return &AppError{
+		HTTPStatus: fiber.StatusRequestEntityTooLarge,
+		Code:       ErrorCodePayloadTooLarge,
+		Type:       "payload_too_large",
+		Message:    message,
+	}
+}
+
+func NewUnsupportedMediaTypeError(message string) *AppError {
+	return &AppError{
+		HTTPStatus: fiber.StatusUnsupportedMediaType,
+		Code:       ErrorCodeUnsupportedMediaType,
+		Type:       "unsupported_media_type",
+		Message:    message,
+	}
 }
 
 func NewNotFoundError(message string) *AppError {

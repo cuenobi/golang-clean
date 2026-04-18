@@ -38,6 +38,10 @@ func NewHandler(useCase in.OrderUseCase) *Handler {
 // @Failure 500 {object} ErrorResponseDoc
 // @Router /api/v1/orders [post]
 func (h *Handler) CreateOrder(c *fiber.Ctx) error {
+	if !c.Is(fiber.MIMEApplicationJSON) {
+		return kernel.NewUnsupportedMediaTypeError("content type must be application/json")
+	}
+
 	var req CreateOrderRequest
 	if err := c.BodyParser(&req); err != nil {
 		return kernel.NewBadRequestError("invalid request body")
@@ -73,6 +77,10 @@ func (h *Handler) CreateOrder(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponseDoc
 // @Router /api/v1/orders/{id} [put]
 func (h *Handler) UpdateOrder(c *fiber.Ctx) error {
+	if !c.Is(fiber.MIMEApplicationJSON) {
+		return kernel.NewUnsupportedMediaTypeError("content type must be application/json")
+	}
+
 	var req UpdateOrderRequest
 	if err := c.BodyParser(&req); err != nil {
 		return kernel.NewBadRequestError("invalid request body")

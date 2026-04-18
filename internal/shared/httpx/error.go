@@ -11,6 +11,7 @@ type ErrorResponse struct {
 	Code      int    `json:"code"`
 	Type      string `json:"type"`
 	Message   string `json:"message"`
+	Data      any    `json:"data,omitempty"`
 	RequestID string `json:"request_id,omitempty"`
 }
 
@@ -23,6 +24,7 @@ func NewErrorHandler() fiber.ErrorHandler {
 			Code:      appErr.Code,
 			Type:      appErr.Type,
 			Message:   appErr.Message,
+			Data:      appErr.Data,
 			RequestID: requestID,
 		})
 	}
@@ -48,6 +50,10 @@ func mapToAppError(err error) *kernel.AppError {
 		switch fiberErr.Code {
 		case fiber.StatusBadRequest:
 			return kernel.NewBadRequestError(fiberErr.Message)
+		case fiber.StatusRequestEntityTooLarge:
+			return kernel.NewPayloadTooLargeError(fiberErr.Message)
+		case fiber.StatusUnsupportedMediaType:
+			return kernel.NewUnsupportedMediaTypeError(fiberErr.Message)
 		case fiber.StatusUnauthorized:
 			return kernel.NewUnauthorizedError(fiberErr.Message)
 		case fiber.StatusForbidden:

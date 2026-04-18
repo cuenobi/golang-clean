@@ -11,6 +11,11 @@ import (
 
 var validate = validatorv10.New()
 
+type FieldViolation struct {
+	Field string `json:"field"`
+	Rule  string `json:"rule"`
+}
+
 func ValidateStruct(payload any) error {
 	if err := validate.Struct(payload); err != nil {
 		validationErrors, ok := err.(validatorv10.ValidationErrors)
@@ -19,14 +24,21 @@ func ValidateStruct(payload any) error {
 		}
 
 		messages := make([]string, 0, len(validationErrors))
+		violations := make([]FieldViolation, 0, len(validationErrors))
 		for _, fieldErr := range validationErrors {
 			fieldName := fieldErr.Field()
 			if parsed := jsonFieldName(payload, fieldErr.StructField()); parsed != "" {
 				fieldName = parsed
 			}
 			messages = append(messages, fmt.Sprintf("%s failed on '%s'", fieldName, fieldErr.Tag()))
+			violations = append(violations, FieldViolation{
+				Field: fieldName,
+				Rule:  fieldErr.Tag(),
+			})
 		}
-		return kernel.NewValidationError(strings.Join(messages, ", "))
+		return kernel.NewValidationErrorWithData(strings.Join(messages, ", "), map[string]any{
+			"violations": violations,
+		})
 	}
 
 	return nil

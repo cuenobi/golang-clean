@@ -36,6 +36,10 @@ func NewHandler(useCase in.UserUseCase) *Handler {
 // @Failure 500 {object} ErrorResponseDoc
 // @Router /api/v1/users [post]
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
+	if !c.Is(fiber.MIMEApplicationJSON) {
+		return kernel.NewUnsupportedMediaTypeError("content type must be application/json")
+	}
+
 	var req CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return kernel.NewBadRequestError("invalid request body")
@@ -117,6 +121,10 @@ func (h *Handler) ListUsers(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponseDoc
 // @Router /api/v1/users/{id} [put]
 func (h *Handler) UpdateUser(c *fiber.Ctx) error {
+	if !c.Is(fiber.MIMEApplicationJSON) {
+		return kernel.NewUnsupportedMediaTypeError("content type must be application/json")
+	}
+
 	var req UpdateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return kernel.NewBadRequestError("invalid request body")

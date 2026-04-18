@@ -106,6 +106,11 @@ All API errors are returned in a stable shape:
   "code": 1001,
   "type": "validation_error",
   "message": "email failed on 'email'",
+  "data": {
+    "violations": [
+      { "field": "email", "rule": "email" }
+    ]
+  },
   "request_id": "8a1f..."
 }
 ```
@@ -114,6 +119,8 @@ Common error codes:
 - `1000` = `internal_error`
 - `1001` = `validation_error`
 - `1002` = `bad_request`
+- `1413` = `payload_too_large`
+- `1415` = `unsupported_media_type`
 - `1401` = `unauthorized`
 - `1403` = `forbidden`
 - `1404` = `not_found`

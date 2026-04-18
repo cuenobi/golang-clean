@@ -1,0 +1,35 @@
+# Skill: SonarQube Quality Gate Review
+
+## Goal
+Ensure code quality matches SonarQube-style expectations before merge.
+
+## Quality Gate
+- No new blocker/critical issues.
+- No obvious duplicated logic without justification.
+- Complexity remains readable and maintainable.
+- New/changed behavior has tests.
+
+## Review Steps
+1. Readability:
+- Function names and variable names are intention-revealing.
+- Avoid long methods and deep nesting.
+
+2. Architecture fitness:
+- No framework leakage into `domain` and `application`.
+- Handlers remain thin; use cases hold orchestration.
+
+3. Error and resilience:
+- No ignored errors.
+- External calls have timeout/retry strategy where relevant.
+
+4. Testability:
+- Critical branches covered.
+- Regression tests added for bug fixes.
+
+5. Maintainability:
+- Split files by responsibility when they become hard to navigate.
+- Remove dead code and stale comments.
+
+## Output Format
+- Findings first with severity and file reference.
+- Then short summary of improvement actions.

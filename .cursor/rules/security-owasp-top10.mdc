@@ -1,0 +1,70 @@
+# Security Standard (OWASP Top 10)
+
+## Purpose
+Apply OWASP Top 10 as the default secure coding baseline for this project.
+
+## Scope
+- Applies to all layers: `interfaces`, `application`, `domain`, `infrastructure`, `shared`.
+- Mandatory for new features and refactors.
+
+## Core Rules (OWASP Top 10 Mapping)
+
+### A01 Broken Access Control
+- Enforce authorization at adapter boundary (`interfaces/http`), never trust client claims.
+- Default deny for protected routes.
+- Validate ownership/permission before read/update/delete operations.
+
+### A02 Cryptographic Failures
+- Do not store secrets in code or Git.
+- Use env/config for secrets and keep TLS enabled in non-local environments.
+- Never log credentials, tokens, API keys, or personal sensitive data.
+
+### A03 Injection
+- Use parameterized queries/ORM APIs only; no string-concatenated SQL.
+- Validate and sanitize all external input (path/query/body/header).
+- Reject unexpected enum/status values and malformed payloads early.
+
+### A04 Insecure Design
+- Use explicit validation rules and fail-closed behavior.
+- Keep business invariants in domain/application, not only in handlers.
+- Add idempotency for unsafe retry-prone write operations when needed.
+
+### A05 Security Misconfiguration
+- Keep secure defaults in `.env.example` and runtime config.
+- Enable CORS/rate-limit/body-limit through centralized middleware.
+- Keep production debug behavior off by default.
+
+### A06 Vulnerable and Outdated Components
+- Keep dependencies updated (`go mod tidy`, review upgrades regularly).
+- Avoid unmaintained libraries for auth/security-critical paths.
+
+### A07 Identification and Authentication Failures
+- Validate API key/token on protected routes.
+- Reject missing/invalid auth immediately with standardized error response.
+- Never bypass auth in production paths.
+
+### A08 Software and Data Integrity Failures
+- Treat external events/messages as untrusted input; validate before processing.
+- Keep migration files reviewed and deterministic.
+- Avoid runtime schema mutation patterns in production (no AutoMigrate).
+
+### A09 Security Logging and Monitoring Failures
+- Emit structured logs with request correlation (`request_id`).
+- Log security-relevant events: auth failure, permission denied, rate-limit hits.
+- Do not leak stack traces or internals in API error responses.
+
+### A10 Server-Side Request Forgery (SSRF)
+- Restrict outbound network destinations when integrating external URLs.
+- Validate/allowlist host targets for any server-side fetch behavior.
+
+## Project-Specific Security Requirements
+- Use centralized error format: `code`, `type`, `message`, `request_id`.
+- Use UTC timestamps consistently for logs/events/auditability.
+- Keep health endpoints minimal and non-sensitive.
+
+## PR Security Checklist
+- Input validated?
+- Authorization enforced?
+- No secrets in code/logs?
+- Errors sanitized for clients?
+- Added/updated tests for security behavior?

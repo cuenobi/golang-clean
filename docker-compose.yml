@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: oms_user
       POSTGRES_PASSWORD: oms_password
       POSTGRES_DB: oms_db
+      TZ: UTC
+      PGTZ: UTC
     ports:
       - "5432:5432"
     volumes:
@@ -30,6 +32,7 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: "yes"
+      TZ: UTC
     ports:
       - "9092:9092"
     healthcheck:
@@ -45,7 +48,9 @@ services:
       dockerfile: Dockerfile
     container_name: golang-clean-migrate
     env_file:
-      - config.example
+      - .env.example
+    environment:
+      TZ: UTC
     command: ["migrate", "up"]
     depends_on:
       postgres:
@@ -59,7 +64,9 @@ services:
       dockerfile: Dockerfile
     container_name: golang-clean-api
     env_file:
-      - config.example
+      - .env.example
+    environment:
+      TZ: UTC
     command: ["api"]
     ports:
       - "8080:8080"
@@ -76,7 +83,9 @@ services:
       dockerfile: Dockerfile
     container_name: golang-clean-consumer
     env_file:
-      - config.example
+      - .env.example
+    environment:
+      TZ: UTC
     command: ["consumer"]
     depends_on:
       postgres:

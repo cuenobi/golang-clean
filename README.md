@@ -18,6 +18,7 @@ A blog-ready reference project for **DDD + Clean Architecture** in Go.
 - Infrastructure only implements ports.
 - Adapters map transport models to application DTOs.
 - Keep `pkg/utils` framework-agnostic and business-agnostic.
+- Time policy: UTC-only across app, DB, logs, and container runtime.
 
 ## Commands
 ```bash
@@ -41,7 +42,7 @@ make hooks-install
 ```
 
 ## Docker Compose (Local Run)
-Configure runtime values in `config.example` (used directly by `docker-compose.yml`).
+Configure runtime values in `.env.example` (used directly by `docker-compose.yml`).
 
 1. Start dependencies + run migrations:
 ```bash
@@ -87,11 +88,12 @@ make swagger
   - `4xx`: `warn`
   - `5xx`: `error`
 
-Environment variables (full template: `config.example`):
-- App: `APP_NAME`, `APP_ENV`, `LOG_LEVEL`
-- HTTP: `HTTP_ADDRESS`, `HTTP_READ_TIMEOUT_SEC`, `HTTP_WRITE_TIMEOUT_SEC`, `READINESS_DB_TIMEOUT_MS`
+Environment variables (full template: `.env.example`):
+- App: `APP_NAME`, `APP_ENV`, `APP_TIMEZONE`, `LOG_LEVEL`
+- HTTP: `HTTP_ADDRESS`, `HTTP_READ_TIMEOUT_SEC`, `HTTP_WRITE_TIMEOUT_SEC`, `HTTP_BODY_LIMIT_MB`, `READINESS_DB_TIMEOUT_MS`
 - Security: `AUTH_ENABLED`, `API_KEY`, `RATE_LIMIT_ENABLED`, `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_SEC`
-- PostgreSQL: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASS`, `POSTGRES_DB`, `POSTGRES_SSL_MODE`
+- CORS: `CORS_ALLOWED_ORIGINS`, `CORS_ALLOWED_METHODS`, `CORS_ALLOWED_HEADERS`, `CORS_EXPOSE_HEADERS`, `CORS_ALLOW_CREDENTIALS`, `CORS_MAX_AGE_SEC`
+- PostgreSQL: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASS`, `POSTGRES_DB`, `POSTGRES_SSL_MODE`, `POSTGRES_TIMEZONE`
 - Kafka: `KAFKA_BROKER`, `KAFKA_PUBLISH_TIMEOUT_MS`
 - Outbox: `OUTBOX_POLL_INTERVAL_MS`, `OUTBOX_BATCH_SIZE`, `OUTBOX_MAX_RETRIES`, `OUTBOX_RETRY_BACKOFF_MS`, `OUTBOX_PROCESSING_TIMEOUT_MS`
 - Circuit breaker: `CIRCUIT_BREAKER_FAILURES`, `CIRCUIT_BREAKER_OPEN_MS`
@@ -124,3 +126,4 @@ See:
 - [docs/architecture.md](docs/architecture.md)
 - [docs/directory-structure.md](docs/directory-structure.md)
 - [.cursor/rules/clean-ddd-solid.mdc](.cursor/rules/clean-ddd-solid.mdc)
+- [.cursor/skills/README.md](.cursor/skills/README.md)

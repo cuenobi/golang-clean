@@ -127,7 +127,7 @@ func toOrderEntity(model OrderModel) (*entity.Order, error) {
 		IdempotencyKey: idempotencyKey,
 		Amount:         money,
 		Status:         entity.Status(model.Status),
-		CreatedAt:      model.CreatedAt,
-		UpdatedAt:      model.UpdatedAt,
+		CreatedAt:      model.CreatedAt.UTC(),
+		UpdatedAt:      model.UpdatedAt.UTC(),
 	}, nil
 }

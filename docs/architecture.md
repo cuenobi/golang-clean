@@ -21,7 +21,7 @@ This project now uses a **merged layer style** to reduce over-engineering:
 4. Infrastructure
 - Postgres/GORM repository implementations.
 - Kafka producers/consumers.
-- Composition root and wiring.
+- Composition root and wiring (modular DI container).
 
 ## SOLID (Practical)
 - SRP: handlers are thin; usecases own business orchestration.
@@ -39,6 +39,11 @@ This project now uses a **merged layer style** to reduce over-engineering:
 - Include request correlation fields (`request_id`, method/path/status, latency).
 - This format is designed for log shipping to Grafana Loki via Promtail/Alloy.
 
+## Time Standard
+- UTC-only policy across app runtime, persistence, and logs.
+- Use `TIMESTAMPTZ` for persisted timestamps.
+- Application clock uses UTC (`SystemClock`), and DB sessions set timezone to UTC.
+
 ## Phase 1 Reliability/Security
 - API key authentication and permission-based authorization for `/api/v1/*`.
 - Rate limiting middleware for abuse protection.
@@ -46,6 +51,16 @@ This project now uses a **merged layer style** to reduce over-engineering:
 - Outbox pattern for `order.created.v1` event delivery.
 - Consumer dispatcher includes retry/backoff, publish timeout, and circuit breaker.
 - Order create supports idempotency via `Idempotency-Key` header.
+
+## DI Pattern (Large Project Ready)
+- Keep a single composition root package: `internal/infrastructure/di`.
+- Use a `Container` that wires dependencies in modules:
+  - core
+  - persistence
+  - messaging
+  - usecase
+  - http
+- Keep `NewModule` as runtime adapter only (`HTTPRunner`, `ConsumerRunner`).
 
 ## Why This Structure
 - Avoids duplicating infrastructure boilerplate per bounded context.

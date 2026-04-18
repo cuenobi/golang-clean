@@ -1,5 +1,7 @@
 BEGIN;
 
+DROP TABLE IF EXISTS outbox_messages;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS orders;
 
 COMMIT;

@@ -3,6 +3,7 @@ package logger
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/cuenobi/golang-clean/internal/shared/config"
 	"github.com/rs/zerolog"
@@ -20,6 +21,10 @@ type structuredLogger struct {
 }
 
 func New(cfg config.Config) Logger {
+	zerolog.TimestampFunc = func() time.Time {
+		return time.Now().UTC()
+	}
+
 	level := zerolog.InfoLevel
 	if parsed, err := zerolog.ParseLevel(strings.ToLower(cfg.LogLevel)); err == nil {
 		level = parsed

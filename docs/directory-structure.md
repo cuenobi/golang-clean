@@ -3,7 +3,7 @@
 ```text
 .
 ├── .cursor/rules/                     # Cursor rules (team conventions)
-├── config.example                     # Environment variable template
+├── .env.example                       # Environment variable template
 ├── docker-compose.yml                 # Local stack (postgres, kafka, api, consumer, migrate)
 ├── Dockerfile                         # Service container build
 ├── bruno/golang-clean/                # Bruno API collection + environments
@@ -38,7 +38,7 @@
 │   │   └── messaging/                 # Messaging consumer adapters
 │   │
 │   ├── infrastructure/                # Technical implementations
-│   │   ├── di/                        # Module composition root
+│   │   ├── di/                        # Modular composition root (container + modules)
 │   │   ├── messaging/                 # Kafka publisher adapters
 │   │   └── persistence/               # GORM repository adapters + outbox storage
 │   │

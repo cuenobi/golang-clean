@@ -1,0 +1,46 @@
+# Code Quality Standard (SonarQube Aligned)
+
+## Purpose
+Use SonarQube-style quality gates as the common code quality baseline.
+
+## Scope
+- Applies to all Go code and tests in this repository.
+- Required for new features, refactors, and bug fixes.
+
+## Quality Gate (Team Baseline)
+- No new blocker/critical issues.
+- No new security hotspots left unreviewed.
+- No duplicated logic without clear reason.
+- Keep functions small and cohesive (avoid excessive cognitive complexity).
+- New behavior must include tests.
+
+## Coding Rules
+- Prefer clear, intention-revealing names over abbreviations.
+- Keep handlers thin; business flow stays in use cases.
+- Avoid deep nesting; return early on invalid paths.
+- Avoid giant files; split by responsibility when growth increases complexity.
+- Remove dead code and commented-out legacy blocks.
+
+## Reliability Rules
+- Always handle returned errors; do not ignore silently.
+- Wrap/contextualize errors where needed for diagnosability.
+- Apply timeouts and retries explicitly for I/O boundaries.
+- Keep side effects explicit and testable.
+
+## Test Rules
+- Unit tests for use case logic and critical branching.
+- Add regression tests for fixed bugs.
+- Keep tests deterministic (no time/local timezone dependency).
+- Use mocks at boundaries, not for pure domain logic.
+
+## Maintainability Rules
+- No framework leakage into `domain` and `application` core logic.
+- Keep DTO/mapper/handler responsibilities separated.
+- Centralize cross-cutting concerns (logging, validation, error handling).
+
+## Review Checklist
+- Is complexity reasonable for each function?
+- Is duplication minimized?
+- Are errors handled and logged properly?
+- Are tests covering new paths and failure paths?
+- Does code follow existing architecture boundaries?

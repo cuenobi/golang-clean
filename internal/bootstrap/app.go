@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"time"
 
 	"github.com/cuenobi/golang-clean/internal/infrastructure/di"
 	"github.com/cuenobi/golang-clean/internal/shared/config"
@@ -17,6 +18,8 @@ type App struct {
 }
 
 func NewApp() (*App, error) {
+	time.Local = time.UTC
+
 	cfg := config.Load()
 	db, err := persistence.NewGormDB(cfg)
 	if err != nil {

@@ -55,6 +55,8 @@ func (r *OutboxRepository) ClaimPending(
 	limit int,
 	processingTimeout time.Duration,
 ) ([]out.OutboxMessage, error) {
+	now = now.UTC()
+
 	if limit <= 0 {
 		limit = 50
 	}
@@ -116,6 +118,8 @@ RETURNING o.id, o.event_type, o.payload, o.retry_count;
 }
 
 func (r *OutboxRepository) MarkPublished(ctx context.Context, messageID string, publishedAt time.Time) error {
+	publishedAt = publishedAt.UTC()
+
 	return sharedpersistence.FromContext(ctx, r.db).WithContext(ctx).
 		Model(&OutboxMessageModel{}).
 		Where("id = ?", messageID).
@@ -135,6 +139,8 @@ func (r *OutboxRepository) MarkRetry(
 	lastError string,
 	dead bool,
 ) error {
+	nextRetryAt = nextRetryAt.UTC()
+
 	status := OutboxStatusPending
 	if dead {
 		status = OutboxStatusDead
@@ -142,11 +148,11 @@ func (r *OutboxRepository) MarkRetry(
 
 	lastErr := lastError
 	updates := map[string]any{
-		"status":       status,
-		"retry_count":  retryCount,
+		"status":        status,
+		"retry_count":   retryCount,
 		"next_retry_at": nextRetryAt,
-		"last_error":   &lastErr,
-		"updated_at":   time.Now().UTC(),
+		"last_error":    &lastErr,
+		"updated_at":    time.Now().UTC(),
 	}
 
 	return sharedpersistence.FromContext(ctx, r.db).WithContext(ctx).

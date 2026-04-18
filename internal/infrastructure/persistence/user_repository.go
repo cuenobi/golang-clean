@@ -95,5 +95,11 @@ func toEntity(model UserModel) (*entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &entity.User{ID: model.ID, Name: model.Name, Email: email, CreatedAt: model.CreatedAt, UpdatedAt: model.UpdatedAt}, nil
+	return &entity.User{
+		ID:        model.ID,
+		Name:      model.Name,
+		Email:     email,
+		CreatedAt: model.CreatedAt.UTC(),
+		UpdatedAt: model.UpdatedAt.UTC(),
+	}, nil
 }

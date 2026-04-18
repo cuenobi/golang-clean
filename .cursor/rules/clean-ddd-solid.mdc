@@ -45,3 +45,5 @@ These rules keep this project aligned with practical DDD + Clean Architecture + 
 
 ## Team Workflow
 - Follow commit convention from `.cursor/rules/commit-message-standard.mdc`.
+- Follow security baseline from `.cursor/rules/security-owasp-top10.mdc`.
+- Follow quality baseline from `.cursor/rules/code-quality-sonarqube.mdc`.

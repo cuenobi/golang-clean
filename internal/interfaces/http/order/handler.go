@@ -1,8 +1,6 @@
 package http
 
 import (
-	"errors"
-
 	"github.com/cuenobi/golang-clean/internal/application/port/in"
 	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	sharedvalidator "github.com/cuenobi/golang-clean/internal/shared/validator"
@@ -20,13 +18,13 @@ func NewHandler(useCase in.OrderUseCase) *Handler {
 func (h *Handler) CreateOrder(c *fiber.Ctx) error {
 	var req CreateOrderRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return kernel.NewBadRequestError("invalid request body")
 	}
 	if err := sharedvalidator.ValidateStruct(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return err
 	}
 
-	result, err := h.useCase.CreateOrder(c.UserContext(), toCreateOrderDTO(req))
+	result, err := h.useCase.CreateOrder(c.UserContext(), toCreateOrderDTO(req, c.Get("Idempotency-Key")))
 	if err != nil {
 		return err
 	}
@@ -37,28 +35,21 @@ func (h *Handler) CreateOrder(c *fiber.Ctx) error {
 func (h *Handler) UpdateOrder(c *fiber.Ctx) error {
 	var req UpdateOrderRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return kernel.NewBadRequestError("invalid request body")
 	}
 	if err := sharedvalidator.ValidateStruct(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return err
 	}
 
 	result, err := h.useCase.UpdateOrder(c.UserContext(), c.Params("id"), toUpdateOrderDTO(req))
 	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
 		return err
 	}
 	return c.JSON(toOrderResponse(result))
 }
 
 func (h *Handler) DeleteOrder(c *fiber.Ctx) error {
-	err := h.useCase.DeleteOrder(c.UserContext(), c.Params("id"))
-	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
+	if err := h.useCase.DeleteOrder(c.UserContext(), c.Params("id")); err != nil {
 		return err
 	}
 	return c.SendStatus(fiber.StatusNoContent)
@@ -67,9 +58,6 @@ func (h *Handler) DeleteOrder(c *fiber.Ctx) error {
 func (h *Handler) GetOrder(c *fiber.Ctx) error {
 	result, err := h.useCase.GetOrder(c.UserContext(), c.Params("id"))
 	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
 		return err
 	}
 	return c.JSON(toOrderResponse(result))

@@ -1,9 +1,10 @@
 package dto
 
 type CreateOrderRequest struct {
-	CustomerID string
-	Currency   string
-	Amount     int64
+	CustomerID     string
+	Currency       string
+	Amount         int64
+	IdempotencyKey string
 }
 
 type UpdateOrderRequest struct {

@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/cuenobi/golang-clean/internal/application/dto"
 	"github.com/cuenobi/golang-clean/internal/application/port/in"
@@ -10,35 +12,51 @@ import (
 	"github.com/cuenobi/golang-clean/internal/domain/entity"
 	"github.com/cuenobi/golang-clean/internal/domain/event"
 	"github.com/cuenobi/golang-clean/internal/domain/valueobject"
+	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 )
 
 var _ in.OrderUseCase = (*OrderUseCase)(nil)
 
 type OrderUseCase struct {
-	repo      out.OrderRepository
-	tx        out.TxManager
-	publisher out.EventPublisher
-	clock     out.Clock
-	idGen     out.IDGenerator
+	repo   out.OrderRepository
+	tx     out.TxManager
+	outbox out.OrderEventOutboxWriter
+	clock  out.Clock
+	idGen  out.IDGenerator
 }
 
 func NewOrderUseCase(
 	repo out.OrderRepository,
 	tx out.TxManager,
-	publisher out.EventPublisher,
+	outbox out.OrderEventOutboxWriter,
 	clock out.Clock,
 	idGen out.IDGenerator,
 ) *OrderUseCase {
 	return &OrderUseCase{
-		repo:      repo,
-		tx:        tx,
-		publisher: publisher,
-		clock:     clock,
-		idGen:     idGen,
+		repo:   repo,
+		tx:     tx,
+		outbox: outbox,
+		clock:  clock,
+		idGen:  idGen,
 	}
 }
 
 func (u *OrderUseCase) CreateOrder(ctx context.Context, req dto.CreateOrderRequest) (dto.OrderResponse, error) {
+	idempotencyKey := strings.TrimSpace(req.IdempotencyKey)
+	if idempotencyKey != "" {
+		existing, err := u.repo.GetByIdempotencyKey(ctx, idempotencyKey)
+		switch {
+		case err == nil && existing != nil:
+			return toOrderResponse(existing), nil
+		case err == nil && existing == nil:
+			// continue
+		case errors.Is(err, kernel.ErrNotFound):
+			// continue
+		default:
+			return dto.OrderResponse{}, err
+		}
+	}
+
 	money, err := valueobject.NewMoney(req.Currency, req.Amount)
 	if err != nil {
 		return dto.OrderResponse{}, err
@@ -46,7 +64,7 @@ func (u *OrderUseCase) CreateOrder(ctx context.Context, req dto.CreateOrderReque
 
 	var created *entity.Order
 	if err := u.tx.WithinTransaction(ctx, func(txCtx context.Context) error {
-		order, err := entity.NewOrder(u.idGen.NewID(), req.CustomerID, money, u.clock.Now())
+		order, err := entity.NewOrder(u.idGen.NewID(), req.CustomerID, idempotencyKey, money, u.clock.Now())
 		if err != nil {
 			return err
 		}
@@ -60,8 +78,8 @@ func (u *OrderUseCase) CreateOrder(ctx context.Context, req dto.CreateOrderReque
 			Currency:   order.Amount.Currency,
 			Amount:     order.Amount.Amount,
 		}
-		if err := u.publisher.PublishOrderCreated(txCtx, outboxEvent); err != nil {
-			return fmt.Errorf("publish order created event: %w", err)
+		if err := u.outbox.EnqueueOrderCreated(txCtx, outboxEvent); err != nil {
+			return fmt.Errorf("enqueue order created outbox event: %w", err)
 		}
 		created = order
 		return nil

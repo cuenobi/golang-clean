@@ -1,0 +1,44 @@
+# Clean DDD SOLID Rules
+
+## Purpose
+These rules keep this project aligned with practical DDD + Clean Architecture + SOLID.
+
+## Architecture Boundaries
+- `domain` contains entities, value objects, domain events, and pure invariants.
+- `application` contains use cases and ports only.
+- `interfaces` contains delivery adapters (HTTP, messaging).
+- `infrastructure` contains persistence/messaging implementations.
+- `shared` contains cross-cutting concerns (config, logger, validator, httpx, resilience).
+
+## Dependency Rule
+- Dependency points inward.
+- `domain` must not import framework packages.
+- `application` depends on abstractions in `application/port`.
+- `interfaces` and `infrastructure` can import `application` and `shared`.
+
+## SOLID (Practical)
+- SRP: handlers are thin; use cases orchestrate business flow.
+- OCP: add new adapters by implementing ports.
+- ISP: keep interfaces small and focused.
+- DIP: use cases depend on ports, never concrete infra implementations.
+
+## HTTP Rules
+- Validate request body with validator tags.
+- Return errors through centralized error handler (`code`, `type`, `message`, `request_id`).
+- Keep transport DTOs in `internal/interfaces/http/<resource>/dto.go`.
+- Mapping logic stays in `mapper.go`, not in handlers.
+
+## Persistence Rules
+- Use SQL migrations only (`golang-migrate`), no AutoMigrate in production.
+- GORM models stay in `internal/infrastructure/persistence`.
+- Repositories return sentinel errors (`ErrNotFound`, `ErrConflict`) mapped centrally.
+
+## Messaging Rules
+- Do not publish domain events directly inside use case transaction.
+- Use outbox write inside transaction, then dispatch from consumer.
+- Apply retry/backoff and circuit breaker in dispatcher.
+
+## Security & Ops
+- Protect API routes with API key auth + permission checks when enabled.
+- Keep liveness/readiness and metrics endpoints available for operations.
+- Log structured JSON for Loki-compatible pipelines.

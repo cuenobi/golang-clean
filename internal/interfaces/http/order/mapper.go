@@ -2,11 +2,12 @@ package http
 
 import "github.com/cuenobi/golang-clean/internal/application/dto"
 
-func toCreateOrderDTO(req CreateOrderRequest) dto.CreateOrderRequest {
+func toCreateOrderDTO(req CreateOrderRequest, idempotencyKey string) dto.CreateOrderRequest {
 	return dto.CreateOrderRequest{
-		CustomerID: req.CustomerID,
-		Currency:   req.Currency,
-		Amount:     req.Amount,
+		CustomerID:     req.CustomerID,
+		Currency:       req.Currency,
+		Amount:         req.Amount,
+		IdempotencyKey: idempotencyKey,
 	}
 }
 

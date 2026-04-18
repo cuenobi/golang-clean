@@ -21,7 +21,7 @@ func NewPublisher(producer sarama.SyncProducer, topic string) *Publisher {
 }
 
 func (p *Publisher) PublishOrderCreated(ctx context.Context, eventPayload any) error {
-	payload, err := json.Marshal(eventPayload)
+	payload, err := encodePayload(eventPayload)
 	if err != nil {
 		return err
 	}
@@ -33,4 +33,15 @@ func (p *Publisher) PublishOrderCreated(ctx context.Context, eventPayload any) e
 		return fmt.Errorf("publish to kafka topic %s: %w", p.topic, err)
 	}
 	return nil
+}
+
+func encodePayload(eventPayload any) ([]byte, error) {
+	switch v := eventPayload.(type) {
+	case []byte:
+		return v, nil
+	case json.RawMessage:
+		return []byte(v), nil
+	default:
+		return json.Marshal(eventPayload)
+	}
 }

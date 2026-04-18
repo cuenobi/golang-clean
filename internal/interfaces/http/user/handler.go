@@ -1,8 +1,6 @@
 package http
 
 import (
-	"errors"
-
 	"github.com/cuenobi/golang-clean/internal/application/port/in"
 	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	sharedvalidator "github.com/cuenobi/golang-clean/internal/shared/validator"
@@ -20,16 +18,14 @@ func NewHandler(useCase in.UserUseCase) *Handler {
 func (h *Handler) CreateUser(c *fiber.Ctx) error {
 	var req CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return kernel.NewBadRequestError("invalid request body")
 	}
 	if err := sharedvalidator.ValidateStruct(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return err
 	}
+
 	result, err := h.useCase.CreateUser(c.UserContext(), toCreateUserDTO(req))
 	if err != nil {
-		if errors.Is(err, kernel.ErrConflict) {
-			return fiber.NewError(fiber.StatusConflict, err.Error())
-		}
 		return err
 	}
 	return c.Status(fiber.StatusCreated).JSON(toUserResponse(result))
@@ -38,9 +34,6 @@ func (h *Handler) CreateUser(c *fiber.Ctx) error {
 func (h *Handler) GetUser(c *fiber.Ctx) error {
 	result, err := h.useCase.GetUser(c.UserContext(), c.Params("id"))
 	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
 		return err
 	}
 	return c.JSON(toUserResponse(result))
@@ -61,30 +54,21 @@ func (h *Handler) ListUsers(c *fiber.Ctx) error {
 func (h *Handler) UpdateUser(c *fiber.Ctx) error {
 	var req UpdateUserRequest
 	if err := c.BodyParser(&req); err != nil {
-		return err
+		return kernel.NewBadRequestError("invalid request body")
 	}
 	if err := sharedvalidator.ValidateStruct(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return err
 	}
+
 	result, err := h.useCase.UpdateUser(c.UserContext(), c.Params("id"), toUpdateUserDTO(req))
 	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
-		if errors.Is(err, kernel.ErrConflict) {
-			return fiber.NewError(fiber.StatusConflict, err.Error())
-		}
 		return err
 	}
 	return c.JSON(toUserResponse(result))
 }
 
 func (h *Handler) DeleteUser(c *fiber.Ctx) error {
-	err := h.useCase.DeleteUser(c.UserContext(), c.Params("id"))
-	if err != nil {
-		if errors.Is(err, kernel.ErrNotFound) {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
+	if err := h.useCase.DeleteUser(c.UserContext(), c.Params("id")); err != nil {
 		return err
 	}
 	return c.SendStatus(fiber.StatusNoContent)

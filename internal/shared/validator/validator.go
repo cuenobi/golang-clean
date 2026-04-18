@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	validatorv10 "github.com/go-playground/validator/v10"
 )
 
@@ -14,7 +15,7 @@ func ValidateStruct(payload any) error {
 	if err := validate.Struct(payload); err != nil {
 		validationErrors, ok := err.(validatorv10.ValidationErrors)
 		if !ok {
-			return err
+			return kernel.NewValidationError("invalid request payload")
 		}
 
 		messages := make([]string, 0, len(validationErrors))
@@ -25,7 +26,7 @@ func ValidateStruct(payload any) error {
 			}
 			messages = append(messages, fmt.Sprintf("%s failed on '%s'", fieldName, fieldErr.Tag()))
 		}
-		return fmt.Errorf("validation failed: %s", strings.Join(messages, ", "))
+		return kernel.NewValidationError(strings.Join(messages, ", "))
 	}
 
 	return nil

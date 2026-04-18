@@ -23,14 +23,20 @@ func NewOrderRepository(db *gorm.DB) *OrderRepository {
 }
 
 func (r *OrderRepository) Save(ctx context.Context, order *entity.Order) error {
+	var idempotencyKey *string
+	if order.IdempotencyKey != "" {
+		idempotencyKey = &order.IdempotencyKey
+	}
+
 	model := OrderModel{
-		ID:         order.ID,
-		CustomerID: order.CustomerID,
-		Currency:   order.Amount.Currency,
-		Amount:     order.Amount.Amount,
-		Status:     string(order.Status),
-		CreatedAt:  order.CreatedAt,
-		UpdatedAt:  order.UpdatedAt,
+		ID:             order.ID,
+		CustomerID:     order.CustomerID,
+		IdempotencyKey: idempotencyKey,
+		Currency:       order.Amount.Currency,
+		Amount:         order.Amount.Amount,
+		Status:         string(order.Status),
+		CreatedAt:      order.CreatedAt,
+		UpdatedAt:      order.UpdatedAt,
 	}
 	return sharedpersistence.FromContext(ctx, r.db).WithContext(ctx).Create(&model).Error
 }
@@ -61,6 +67,18 @@ func (r *OrderRepository) List(ctx context.Context) ([]*entity.Order, error) {
 		result = append(result, order)
 	}
 	return result, nil
+}
+
+func (r *OrderRepository) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*entity.Order, error) {
+	var model OrderModel
+	err := sharedpersistence.FromContext(ctx, r.db).WithContext(ctx).First(&model, "idempotency_key = ?", idempotencyKey).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, kernel.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return toOrderEntity(model)
 }
 
 func (r *OrderRepository) Update(ctx context.Context, order *entity.Order) error {
@@ -98,12 +116,18 @@ func toOrderEntity(model OrderModel) (*entity.Order, error) {
 		return nil, err
 	}
 
+	idempotencyKey := ""
+	if model.IdempotencyKey != nil {
+		idempotencyKey = *model.IdempotencyKey
+	}
+
 	return &entity.Order{
-		ID:         model.ID,
-		CustomerID: model.CustomerID,
-		Amount:     money,
-		Status:     entity.Status(model.Status),
-		CreatedAt:  model.CreatedAt,
-		UpdatedAt:  model.UpdatedAt,
+		ID:             model.ID,
+		CustomerID:     model.CustomerID,
+		IdempotencyKey: idempotencyKey,
+		Amount:         money,
+		Status:         entity.Status(model.Status),
+		CreatedAt:      model.CreatedAt,
+		UpdatedAt:      model.UpdatedAt,
 	}, nil
 }

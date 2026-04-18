@@ -17,25 +17,27 @@ const (
 )
 
 type Order struct {
-	ID         string
-	CustomerID string
-	Amount     valueobject.Money
-	Status     Status
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID             string
+	CustomerID     string
+	IdempotencyKey string
+	Amount         valueobject.Money
+	Status         Status
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
-func NewOrder(id, customerID string, amount valueobject.Money, now time.Time) (*Order, error) {
+func NewOrder(id, customerID, idempotencyKey string, amount valueobject.Money, now time.Time) (*Order, error) {
 	if strings.TrimSpace(customerID) == "" {
 		return nil, fmt.Errorf("customer id is required")
 	}
 	return &Order{
-		ID:         id,
-		CustomerID: strings.TrimSpace(customerID),
-		Amount:     amount,
-		Status:     StatusPending,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		ID:             id,
+		CustomerID:     strings.TrimSpace(customerID),
+		IdempotencyKey: strings.TrimSpace(idempotencyKey),
+		Amount:         amount,
+		Status:         StatusPending,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}, nil
 }
 

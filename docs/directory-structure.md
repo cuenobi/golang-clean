@@ -23,13 +23,14 @@
 │   ├── interfaces/                    # Interface adapters
 │   │   ├── http/
 │   │   │   ├── order/                 # Order HTTP handlers
+│   │   │   ├── system/                # Health/readiness/metrics endpoints
 │   │   │   └── user/                  # User HTTP handlers
 │   │   └── messaging/                 # Messaging consumer adapters
 │   │
 │   ├── infrastructure/                # Technical implementations
 │   │   ├── di/                        # Module composition root
 │   │   ├── messaging/                 # Kafka publisher adapters
-│   │   └── persistence/               # GORM repository adapters
+│   │   └── persistence/               # GORM repository adapters + outbox storage
 │   │
 │   └── shared/                        # Shared cross-cutting components
 │       ├── config/
@@ -37,12 +38,14 @@
 │       ├── kafkax/
 │       ├── kernel/
 │       ├── logger/
+│       ├── metrics/
 │       ├── persistence/
+│       ├── resilience/
 │       └── validator/
 │
 ├── api/                               # OpenAPI/Swagger docs
 ├── migrations/                        # SQL migrations
-├── docs/                              # Project docs
+├── docs/                              # Project docs + governance pack (phase2)
 ├── tests/                             # Integration/contract test placeholders
 ├── pkg/utils/                         # Generic utility helpers
 └── tools/                             # Tool dependencies (mockery)

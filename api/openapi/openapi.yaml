@@ -5,10 +5,41 @@ info:
 servers:
   - url: http://localhost:8080
 paths:
+  /healthz:
+    get:
+      summary: Liveness probe
+      operationId: healthz
+      responses:
+        '200':
+          description: Service is alive
+  /readyz:
+    get:
+      summary: Readiness probe
+      operationId: readyz
+      responses:
+        '200':
+          description: Service is ready
+        '503':
+          description: Service is not ready
+  /metrics:
+    get:
+      summary: Prometheus metrics endpoint
+      operationId: metrics
+      responses:
+        '200':
+          description: Prometheus metrics
   /api/v1/orders:
     post:
       summary: Create order
       operationId: createOrder
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -34,6 +65,8 @@ paths:
     get:
       summary: List orders
       operationId: listOrders
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Order list
@@ -47,6 +80,8 @@ paths:
     get:
       summary: Get order by id
       operationId: getOrder
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -65,6 +100,8 @@ paths:
     put:
       summary: Update order
       operationId: updateOrder
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -98,6 +135,8 @@ paths:
     delete:
       summary: Delete order
       operationId: deleteOrder
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -113,6 +152,8 @@ paths:
     post:
       summary: Create user
       operationId: createUser
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -138,6 +179,8 @@ paths:
     get:
       summary: List users
       operationId: listUsers
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: User list
@@ -151,6 +194,8 @@ paths:
     get:
       summary: Get user by id
       operationId: getUser
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -169,6 +214,8 @@ paths:
     put:
       summary: Update user
       operationId: updateUser
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -202,6 +249,8 @@ paths:
     delete:
       summary: Delete user
       operationId: deleteUser
+      security:
+        - ApiKeyAuth: []
       parameters:
         - in: path
           name: id
@@ -214,7 +263,23 @@ paths:
         '404':
           description: User not found
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+        request_id:
+          type: string
     Order:
       type: object
       properties:

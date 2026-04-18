@@ -9,6 +9,7 @@ import (
 	"github.com/cuenobi/golang-clean/internal/application/dto"
 	"github.com/cuenobi/golang-clean/internal/application/usecase"
 	"github.com/cuenobi/golang-clean/internal/domain/entity"
+	"github.com/cuenobi/golang-clean/internal/domain/event"
 	"github.com/cuenobi/golang-clean/internal/shared/kernel"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -25,20 +26,30 @@ func TestOrderUseCaseSuite(t *testing.T) {
 func (s *orderUseCaseSuite) TestCRUDFlow() {
 	repo := newOrderRepoMock()
 	tx := &txMock{}
-	publisher := &publisherMock{}
+	outbox := &outboxWriterMock{}
 	clock := fixedClock{now: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)}
 	idGen := fixedID{id: "ord_123"}
 
-	uc := usecase.NewOrderUseCase(repo, tx, publisher, clock, idGen)
+	uc := usecase.NewOrderUseCase(repo, tx, outbox, clock, idGen)
 
 	created, err := uc.CreateOrder(context.Background(), dto.CreateOrderRequest{
-		CustomerID: "cus_1",
-		Currency:   "USD",
-		Amount:     100,
+		CustomerID:     "cus_1",
+		Currency:       "USD",
+		Amount:         100,
+		IdempotencyKey: "idem-1",
 	})
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), "ord_123", created.ID)
-	require.True(s.T(), publisher.called)
+	require.True(s.T(), outbox.called)
+
+	duplicate, err := uc.CreateOrder(context.Background(), dto.CreateOrderRequest{
+		CustomerID:     "cus_1",
+		Currency:       "USD",
+		Amount:         100,
+		IdempotencyKey: "idem-1",
+	})
+	require.NoError(s.T(), err)
+	require.Equal(s.T(), created.ID, duplicate.ID)
 
 	got, err := uc.GetOrder(context.Background(), "ord_123")
 	require.NoError(s.T(), err)
@@ -87,6 +98,15 @@ func (m *orderRepoMock) GetByID(ctx context.Context, orderID string) (*entity.Or
 	return order, nil
 }
 
+func (m *orderRepoMock) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*entity.Order, error) {
+	for _, order := range m.orders {
+		if order.IdempotencyKey == idempotencyKey {
+			return order, nil
+		}
+	}
+	return nil, kernel.ErrNotFound
+}
+
 func (m *orderRepoMock) List(ctx context.Context) ([]*entity.Order, error) {
 	result := make([]*entity.Order, 0, len(m.orders))
 	for _, order := range m.orders {
@@ -117,11 +137,11 @@ func (m *txMock) WithinTransaction(ctx context.Context, fn func(context.Context)
 	return fn(ctx)
 }
 
-type publisherMock struct {
+type outboxWriterMock struct {
 	called bool
 }
 
-func (m *publisherMock) PublishOrderCreated(ctx context.Context, eventPayload any) error {
+func (m *outboxWriterMock) EnqueueOrderCreated(ctx context.Context, eventPayload event.OrderCreated) error {
 	m.called = true
 	return nil
 }

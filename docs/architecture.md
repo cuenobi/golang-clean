@@ -39,7 +39,22 @@ This project now uses a **merged layer style** to reduce over-engineering:
 - Include request correlation fields (`request_id`, method/path/status, latency).
 - This format is designed for log shipping to Grafana Loki via Promtail/Alloy.
 
+## Phase 1 Reliability/Security
+- API key authentication and permission-based authorization for `/api/v1/*`.
+- Rate limiting middleware for abuse protection.
+- Operational endpoints: `/healthz`, `/readyz`, `/metrics`.
+- Outbox pattern for `order.created.v1` event delivery.
+- Consumer dispatcher includes retry/backoff, publish timeout, and circuit breaker.
+- Order create supports idempotency via `Idempotency-Key` header.
+
 ## Why This Structure
 - Avoids duplicating infrastructure boilerplate per bounded context.
 - Keeps clean-layer boundaries while staying practical for a small/medium service.
 - Easier to publish and maintain without deep directory nesting.
+
+## Governance Docs
+- ADRs: `docs/phase2/adr/`
+- NFR/SLA: `docs/phase2/nfr-sla.md`
+- Ownership/On-call: `docs/phase2/ownership-oncall.md`
+- Risk/Trade-offs: `docs/phase2/risk-tradeoff-matrix.md`
+- Error Catalog: `docs/phase2/error-code-catalog.md`

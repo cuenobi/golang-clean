@@ -1,37 +1,87 @@
 # golang-clean
 
-A blog-ready reference project for **DDD + Clean Architecture** in Go, with practical conventions for team-scale delivery.
+DDD + Clean Architecture example in Go, designed for AI-assisted development (Cursor) with practical team conventions.
 
-## Stack
-- Fiber HTTP server
-- Swagger/OpenAPI documentation (Swaggo)
-- Kafka messaging
-- Cobra CLI
+## What You Get
+- Fiber HTTP API
+- Kafka consumer + outbox pattern
 - PostgreSQL + GORM
-- SQL migration with golang-migrate
-- Test suite with testify + mockery
+- `golang-migrate` SQL migrations
+- Swagger docs (Swaggo)
+- Bruno collection
+- Structured logging (Loki-friendly)
+- UTC-only time policy
+- OWASP + SonarQube aligned project rules
 
-## Core Conventions
-- Architecture style: DDD + Clean (merged-layer style, avoid duplicated per-module infrastructure)
-- SOLID: practical, not over-engineered
-- Dependency rule: dependencies point inward
-- UTC-only: application, database, logs, and containers
-- Security baseline: OWASP Top 10 aligned
-- Code quality baseline: SonarQube-style quality gate
-- Error contract: stable machine-readable error codes for FE mapping
+## Prerequisites
+- Go `1.25+`
+- Docker + Docker Compose
+- Make
 
-## Directory Structure
-See [docs/directory-structure.md](docs/directory-structure.md) for the full up-to-date tree.
+## Quick Start (Recommended: Docker)
 
-Quick placement:
-- Domain model and invariants: `internal/domain`
-- Use cases and ports: `internal/application`
-- HTTP/messaging adapters: `internal/interfaces`
-- Persistence/messaging implementation + DI: `internal/infrastructure`
-- Cross-cutting concerns (`config`, `httpx`, `logger`, `validator`, `metrics`): `internal/shared`
-- Generic utilities only: `pkg/utils`
+1. Clone repository
+```bash
+git clone https://github.com/cuenobi/golang-clean.git
+cd golang-clean
+```
 
-## Commands
+2. Review environment template
+```bash
+cat .env.example
+```
+
+3. Run DB migration (starts PostgreSQL automatically)
+```bash
+docker compose --profile tools up --build migrate
+```
+
+4. Start API + Consumer
+```bash
+docker compose up --build api consumer
+```
+
+5. Verify services
+```bash
+curl -i http://localhost:8080/healthz
+curl -i http://localhost:8080/readyz
+curl -i http://localhost:8080/metrics
+```
+
+6. Open Swagger UI
+- `http://localhost:8080/swagger/index.html`
+
+## Local Run (Go Process)
+Use this mode if you want to run `go run` directly.
+
+1. Start infrastructure only
+```bash
+docker compose up -d postgres kafka
+```
+
+2. Export env vars for local process
+```bash
+set -a
+source .env.example
+set +a
+
+# local overrides (containers are exposed on localhost)
+export POSTGRES_HOST=localhost
+export KAFKA_BROKER=localhost:9092
+```
+
+3. Run migration
+```bash
+make migrate-up
+```
+
+4. Run API and consumer (separate terminals)
+```bash
+make run-api
+make run-consumer
+```
+
+## Common Commands
 ```bash
 make run-api
 make run-consumer
@@ -43,80 +93,14 @@ make swagger
 make hooks-install
 ```
 
-## Local Run (Docker Compose)
-Configure runtime values in `.env.example`.
+## API Auth Notes
+- Default in `.env.example`: `AUTH_ENABLED=false`
+- If you enable auth (`AUTH_ENABLED=true`):
+  - send `X-API-Key`
+  - send `X-Permissions` per endpoint (for example `users:read`, `orders:write`)
 
-1. Start dependencies + run migrations:
-```bash
-docker compose --profile tools up --build migrate
-```
-2. Start API + Consumer:
-```bash
-docker compose up --build api consumer
-```
-3. Optional full stack:
-```bash
-docker compose up --build
-```
-
-## API Documentation and Testing
-
-### Swaggo
-- Swagger UI endpoint: `GET /swagger/index.html`
-- Generate docs:
-```bash
-make swagger
-```
-- Generated artifacts: `api/swagger/`
-
-### Bruno
-- Collection path: `bruno/golang-clean`
-- Import this folder in Bruno and use `environments/local.bru`
-
-## HTTP and Endpoint Conventions
-- Keep handlers thin; orchestration belongs to use cases.
-- Request/response DTOs stay in `internal/interfaces/http/<module>/dto.go`.
-- Mapping logic stays in `mapper.go`.
-- Validate request bodies with `validator/v10` tags.
-- Write endpoints require JSON content type (`application/json`).
-- Middleware is centralized in DI HTTP module (`internal/infrastructure/di/http_module.go`).
-
-Current centralized controls:
-- CORS (env-driven)
-- Rate limit (env-driven)
-- Body size limit (env-driven)
-- API key auth + permission checks (when enabled)
-- Request ID + structured request logging
-
-## UTC Time Standard
-UTC is enforced across the project:
-- App runtime clock uses UTC
-- DB timestamps use `TIMESTAMPTZ`
-- DB session timezone is set to UTC
-- Logger timestamps use UTC
-- Container runtime uses `TZ=UTC`
-
-## Logging (Loki Ready)
-- Structured JSON logs via `zerolog` to stdout
-- Request logs include `request_id`, `method`, `path`, `status`, `latency_ms`, `ip`, `user_agent`
-- Levels by status:
-  - `2xx/3xx`: `info`
-  - `4xx`: `warn`
-  - `5xx`: `error`
-
-## Reliability and Security (Current Baseline)
-- API key authentication and permission-based authorization for `/api/v1/*`
-- Rate limiting middleware
-- Operational endpoints:
-  - `GET /healthz`
-  - `GET /readyz`
-  - `GET /metrics`
-- Outbox pattern for `order.created.v1` event delivery
-- Consumer dispatcher with retry/backoff, publish timeout, and circuit breaker
-- Idempotent order creation via `Idempotency-Key`
-
-## Error Handling Contract (FE Mapping)
-All API errors use one stable shape:
+## API Error Contract
+All API errors use this shape:
 
 ```json
 {
@@ -128,60 +112,38 @@ All API errors use one stable shape:
       { "field": "email", "rule": "email" }
     ]
   },
-  "request_id": "8a1f..."
+  "request_id": "..."
 }
 ```
 
-Common error codes:
-- `1000` = `internal_error`
-- `1001` = `validation_error`
-- `1002` = `bad_request`
-- `1401` = `unauthorized`
-- `1403` = `forbidden`
-- `1404` = `not_found`
-- `1409` = `conflict`
-- `1413` = `payload_too_large`
-- `1415` = `unsupported_media_type`
-- `1422` = `invalid_state`
-- `1429` = `rate_limited`
+Common codes:
+- `1000` internal
+- `1001` validation
+- `1002` bad request
+- `1401` unauthorized
+- `1403` forbidden
+- `1404` not found
+- `1409` conflict
+- `1413` payload too large
+- `1415` unsupported media type
+- `1422` invalid state
+- `1429` rate limited
 
-Context-specific codes are defined in `internal/shared/kernel/error_codes_context.go`.
+## Documentation
+- Architecture: [docs/architecture.md](docs/architecture.md)
+- Directory structure: [docs/directory-structure.md](docs/directory-structure.md)
 
-## Environment Variables
-Full template: `.env.example`
+## Bruno
+- Collection: `bruno/golang-clean`
+- Environment: `bruno/golang-clean/environments/local.bru`
 
-- App: `APP_NAME`, `APP_ENV`, `APP_TIMEZONE`, `LOG_LEVEL`
-- HTTP: `HTTP_ADDRESS`, `HTTP_READ_TIMEOUT_SEC`, `HTTP_WRITE_TIMEOUT_SEC`, `HTTP_BODY_LIMIT_MB`, `READINESS_DB_TIMEOUT_MS`
-- Security: `AUTH_ENABLED`, `API_KEY`, `RATE_LIMIT_ENABLED`, `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_SEC`
-- CORS: `CORS_ALLOWED_ORIGINS`, `CORS_ALLOWED_METHODS`, `CORS_ALLOWED_HEADERS`, `CORS_EXPOSE_HEADERS`, `CORS_ALLOW_CREDENTIALS`, `CORS_MAX_AGE_SEC`
-- PostgreSQL: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASS`, `POSTGRES_DB`, `POSTGRES_SSL_MODE`, `POSTGRES_TIMEZONE`
-- Kafka: `KAFKA_BROKER`, `KAFKA_PUBLISH_TIMEOUT_MS`
-- Outbox: `OUTBOX_POLL_INTERVAL_MS`, `OUTBOX_BATCH_SIZE`, `OUTBOX_MAX_RETRIES`, `OUTBOX_RETRY_BACKOFF_MS`, `OUTBOX_PROCESSING_TIMEOUT_MS`
-- Circuit breaker: `CIRCUIT_BREAKER_FAILURES`, `CIRCUIT_BREAKER_OPEN_MS`
-
-## Migration Policy
-- Use `golang-migrate` SQL files in `migrations/`
-- Do not use GORM AutoMigrate in production
-- Current baseline migration is consolidated in `000001_init.(up|down).sql`
-
-## Team Commit Standard
-- Pattern: `<type>(<scope>): <subject>`
-- Rule: `.cursor/rules/commit-message-standard.mdc`
-- Template: `.gitmessage`
-- Hook: `.githooks/commit-msg`
-- Install:
-```bash
-make hooks-install
-```
-
-## Cursor Rules and Skills
-
+## Team Conventions (Cursor)
 ### Rules
 - `.cursor/rules/clean-ddd-solid.mdc`
-- `.cursor/rules/security-owasp-top10.mdc`
-- `.cursor/rules/code-quality-sonarqube.mdc`
 - `.cursor/rules/http-api-convention.mdc`
 - `.cursor/rules/utc-time-standard.mdc`
+- `.cursor/rules/security-owasp-top10.mdc`
+- `.cursor/rules/code-quality-sonarqube.mdc`
 - `.cursor/rules/commit-message-standard.mdc`
 
 ### Skills
@@ -190,7 +152,19 @@ make hooks-install
 - `.cursor/skills/sonarqube-quality-gate.mdc`
 - `.cursor/skills/release-readiness-check.mdc`
 
-## Related Docs
-- [docs/architecture.md](docs/architecture.md)
-- [docs/directory-structure.md](docs/directory-structure.md)
-- [.cursor/skills/README.md](.cursor/skills/README.md)
+## Git Hooks / Commit Template
+Install project commit hooks and commit message template:
+
+```bash
+make hooks-install
+```
+
+## Troubleshooting
+- `connection refused` to Postgres/Kafka:
+  - ensure `docker compose up -d postgres kafka` is running
+- migration fails:
+  - verify `POSTGRES_*` env values
+- API returns `unsupported_media_type`:
+  - send `Content-Type: application/json` on write endpoints
+- API returns `payload_too_large`:
+  - increase `HTTP_BODY_LIMIT_MB` if needed

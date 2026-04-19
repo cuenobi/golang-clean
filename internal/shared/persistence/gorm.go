@@ -1,6 +1,8 @@
 package persistence
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cuenobi/golang-clean/internal/shared/config"
@@ -18,7 +20,13 @@ func NewGormDB(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	if err := db.Exec("SET TIME ZONE ?", cfg.PostgresTZ).Error; err != nil {
+	tz := cfg.PostgresTZ
+	if strings.TrimSpace(tz) == "" {
+		tz = "UTC"
+	}
+	tz = strings.ReplaceAll(tz, "'", "''")
+
+	if err := db.Exec(fmt.Sprintf("SET TIME ZONE '%s'", tz)).Error; err != nil {
 		return nil, err
 	}
 

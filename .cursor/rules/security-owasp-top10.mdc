@@ -1,3 +1,8 @@
+---
+description: "Apply OWASP Top 10 secure coding baseline across all layers."
+alwaysApply: true
+---
+
 # Security Standard (OWASP Top 10)
 
 ## Purpose

@@ -1,3 +1,8 @@
+---
+description: "Use when implementing or reviewing time handling in persistence, APIs, logging, and tests."
+alwaysApply: false
+---
+
 # UTC Time Standard Rules
 
 ## Purpose

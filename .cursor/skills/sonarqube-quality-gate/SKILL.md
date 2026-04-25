@@ -1,7 +1,13 @@
+---
+name: sonarqube-quality-gate
+description: Evaluate changed code against SonarQube-style quality expectations before merge.
+---
+
 # Skill: SonarQube Quality Gate Review
 
 ## Goal
 Ensure code quality matches SonarQube-style expectations before merge.
+Normative policy source: `.cursor/rules/code-quality-sonarqube.mdc`.
 
 ## Quality Gate
 - No new blocker/critical issues.

@@ -1,3 +1,8 @@
+---
+name: release-readiness-check
+description: Run a final architecture, API, security, and operations readiness check before release.
+---
+
 # Skill: Release Readiness Check
 
 ## Goal

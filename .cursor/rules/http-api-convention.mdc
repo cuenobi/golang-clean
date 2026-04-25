@@ -1,3 +1,13 @@
+---
+description: "HTTP adapter conventions for DTO validation, error contract, middleware, and API docs consistency."
+alwaysApply: false
+globs:
+  - "internal/interfaces/http/**/*.go"
+  - "internal/shared/httpx/**/*.go"
+  - "internal/infrastructure/di/http_module.go"
+  - "docs/swagger/**/*"
+---
+
 # HTTP API Convention Rules
 
 ## Purpose

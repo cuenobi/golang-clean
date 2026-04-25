@@ -1,3 +1,8 @@
+---
+name: clean-feature-delivery
+description: Implement or refactor features with clean architecture, validation, tests, and docs updates.
+---
+
 # Skill: Clean Feature Delivery
 
 ## Goal

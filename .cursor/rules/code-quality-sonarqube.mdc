@@ -1,3 +1,8 @@
+---
+description: "Use for code quality review and refactoring decisions in changed Go code and tests."
+alwaysApply: false
+---
+
 # Code Quality Standard (SonarQube Aligned)
 
 ## Purpose

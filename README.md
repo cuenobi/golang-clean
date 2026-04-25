@@ -97,7 +97,7 @@ make hooks-install
 - Default in `.env.example`: `AUTH_ENABLED=false`
 - If you enable auth (`AUTH_ENABLED=true`):
   - send `X-API-Key`
-  - send `X-Permissions` per endpoint (for example `users:read`, `orders:write`)
+  - send `X-Permissions` per endpoint (for example `users:read`, `orders:write`, `audit_logs:read`)
 
 ## API Error Contract
 All API errors use this shape:

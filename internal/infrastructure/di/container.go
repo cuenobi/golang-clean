@@ -2,6 +2,7 @@ package di
 
 import (
 	"github.com/IBM/sarama"
+	auditlogusecase "github.com/cuenobi/golang-clean/internal/application/usecase/auditlog"
 	orderusecase "github.com/cuenobi/golang-clean/internal/application/usecase/order"
 	userusecase "github.com/cuenobi/golang-clean/internal/application/usecase/user"
 	messaginginfra "github.com/cuenobi/golang-clean/internal/infrastructure/messaging"
@@ -26,15 +27,17 @@ type Container struct {
 	IDGen outIDGenerator
 	Tx    kernel.TxManager
 
-	OrderRepo  *persistenceinfra.OrderRepository
-	UserRepo   *persistenceinfra.UserRepository
-	OutboxRepo *persistenceinfra.OutboxRepository
+	OrderRepo    *persistenceinfra.OrderRepository
+	UserRepo     *persistenceinfra.UserRepository
+	AuditLogRepo *persistenceinfra.AuditLogRepository
+	OutboxRepo   *persistenceinfra.OutboxRepository
 
 	Producer       sarama.SyncProducer
 	EventPublisher *messaginginfra.Publisher
 
-	OrderUseCase *orderusecase.OrderUseCase
-	UserUseCase  *userusecase.UserUseCase
+	OrderUseCase    *orderusecase.OrderUseCase
+	UserUseCase     *userusecase.UserUseCase
+	AuditLogUseCase *auditlogusecase.AuditLogUseCase
 
 	HTTPApp  *fiber.App
 	Consumer *messageadapter.Consumer
@@ -76,12 +79,14 @@ func (c *Container) wireCore() {
 func (c *Container) wirePersistence() {
 	c.OrderRepo = persistenceinfra.NewOrderRepository(c.DB)
 	c.UserRepo = persistenceinfra.NewUserRepository(c.DB)
+	c.AuditLogRepo = persistenceinfra.NewAuditLogRepository(c.DB)
 	c.OutboxRepo = persistenceinfra.NewOutboxRepository(c.DB)
 }
 
 func (c *Container) wireUseCases() {
 	c.OrderUseCase = orderusecase.NewOrderUseCase(c.OrderRepo, c.Tx, c.OutboxRepo, c.Clock, c.IDGen)
 	c.UserUseCase = userusecase.NewUserUseCase(c.UserRepo, c.Clock, c.IDGen)
+	c.AuditLogUseCase = auditlogusecase.NewAuditLogUseCase(c.AuditLogRepo)
 }
 
 func (c *Container) wireConsumer() {

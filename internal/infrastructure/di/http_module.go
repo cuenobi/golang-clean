@@ -4,6 +4,7 @@ import (
 	"time"
 
 	_ "github.com/cuenobi/golang-clean/api/swagger"
+	auditloghttp "github.com/cuenobi/golang-clean/internal/interfaces/http/auditlog"
 	httpadapter "github.com/cuenobi/golang-clean/internal/interfaces/http/order"
 	systemhttp "github.com/cuenobi/golang-clean/internal/interfaces/http/system"
 	userhttp "github.com/cuenobi/golang-clean/internal/interfaces/http/user"
@@ -44,6 +45,8 @@ func (c *Container) wireHTTP() {
 	httpadapter.RegisterRoutes(v1, httpHandler, c.Cfg)
 	userHandler := userhttp.NewHandler(c.UserUseCase)
 	userhttp.RegisterRoutes(v1, userHandler, c.Cfg)
+	auditLogHandler := auditloghttp.NewHandler(c.AuditLogUseCase)
+	auditloghttp.RegisterRoutes(v1, auditLogHandler, c.Cfg)
 
 	c.HTTPApp = app
 }

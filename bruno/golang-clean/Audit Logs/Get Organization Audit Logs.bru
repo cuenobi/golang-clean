@@ -1,0 +1,37 @@
+meta {
+  name: Get Organization Audit Logs
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/api/v1/audit-logs/organization?date_from=2026-04-01T00:00:00Z&date_to=2026-04-30T23:59:59Z
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{auditLogPermissionsRead}}
+}
+
+params:query {
+  date_from: 2026-04-01T00:00:00Z
+  date_to: 2026-04-30T23:59:59Z
+  ~organization_ids: 1711
+  ~modules: ORG_ORDER
+  ~actions: CREATE
+  ~page: 1
+  ~page_size: 20
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Should respond with 200 status", function() {
+    expect(res.status).to.equal(200);
+  });
+}

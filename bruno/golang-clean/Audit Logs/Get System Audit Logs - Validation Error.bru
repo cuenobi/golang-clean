@@ -1,0 +1,32 @@
+meta {
+  name: Get System Audit Logs - Validation Error
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/audit-logs/system?date_from=invalid-date&date_to=2026-04-30T23:59:59Z
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-API-Key: {{apiKey}}
+  X-Permissions: {{auditLogPermissionsRead}}
+}
+
+params:query {
+  date_from: invalid-date
+  date_to: 2026-04-30T23:59:59Z
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("Should respond with 400 status", function() {
+    expect(res.status).to.equal(400);
+  });
+}

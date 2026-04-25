@@ -54,4 +54,5 @@ These rules keep this project aligned with practical DDD + Clean Architecture + 
 - Follow security baseline from `.cursor/rules/security-owasp-top10.mdc`.
 - Follow quality baseline from `.cursor/rules/code-quality-sonarqube.mdc`.
 - Follow API convention from `.cursor/rules/http-api-convention.mdc`.
+- Follow endpoint artifact baseline from `.cursor/rules/endpoint-delivery-artifacts.mdc`.
 - Follow UTC standard from `.cursor/rules/utc-time-standard.mdc`.

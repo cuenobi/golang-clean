@@ -1,0 +1,26 @@
+---
+description: "Mandatory delivery artifacts for new endpoints: add Bruno request and Bruno-based integration tests."
+alwaysApply: true
+---
+
+# Endpoint Delivery Artifacts Rules
+
+## Purpose
+Ensure every new endpoint ships with executable API artifacts and regression protection.
+
+## Trigger
+- A feature introduces a new endpoint (new method + path), or a new externally used endpoint variant.
+
+## Mandatory Artifacts
+- Add a Bruno request for the endpoint under `bruno/golang-clean/<Module>/`.
+- Include required headers, request body (if any), and expected success shape in Bruno request.
+- Add integration test coverage in Bruno (as runnable request/scenario) for:
+  - happy path
+  - at least one failure/validation case
+
+## Contract Change Rule
+- If endpoint contract changes (request fields, response shape, status code, error contract), update related Bruno files and Bruno integration scenarios in the same change set.
+
+## Completion Rule
+- Do not mark the task done without Bruno request + Bruno integration scenario updates for new endpoints.
+- If environment blockers prevent Bruno integration execution, report blocker explicitly and request user decision before closing the task.

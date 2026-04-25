@@ -6,6 +6,9 @@ These skills are reusable prompt patterns for this repository and follow the Cur
 - `clean-feature-delivery`
   - Path: `clean-feature-delivery/SKILL.md`
   - Use when implementing a new endpoint/feature or refactoring an endpoint structure while preserving behavior.
+- `unit-test-mockery-suite`
+  - Path: `unit-test-mockery-suite/SKILL.md`
+  - Use when writing or refactoring Go use case unit tests with `mockery` mocks and `testify/suite`.
 - `owasp-security-review`
   - Path: `owasp-security-review/SKILL.md`
   - Use when reviewing security risks based on OWASP Top 10.

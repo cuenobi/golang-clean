@@ -145,6 +145,7 @@ Common codes:
 - `.cursor/rules/security-owasp-top10.mdc`
 - `.cursor/rules/code-quality-sonarqube.mdc`
 - `.cursor/rules/commit-message-standard.mdc`
+- `.cursor/rules/endpoint-delivery-artifacts.mdc`
 
 ### Skills
 - `.cursor/skills/clean-feature-delivery.mdc`

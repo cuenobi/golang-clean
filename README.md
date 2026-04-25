@@ -9,6 +9,7 @@ DDD + Clean Architecture example in Go, designed for AI-assisted development (Cu
 - `golang-migrate` SQL migrations
 - Swagger docs (Swaggo)
 - Bruno collection
+- Audit log endpoints (`/api/v1/audit-logs/system`, `/api/v1/audit-logs/organization`)
 - Structured logging (Loki-friendly)
 - UTC-only time policy
 - OWASP + SonarQube aligned project rules
@@ -91,6 +92,7 @@ make test
 make mockery
 make swagger
 make hooks-install
+make fmt
 ```
 
 ## API Auth Notes
@@ -148,10 +150,16 @@ Common codes:
 - `.cursor/rules/endpoint-delivery-artifacts.mdc`
 
 ### Skills
-- `.cursor/skills/clean-feature-delivery.mdc`
-- `.cursor/skills/owasp-security-review.mdc`
-- `.cursor/skills/sonarqube-quality-gate.mdc`
-- `.cursor/skills/release-readiness-check.mdc`
+- `.cursor/skills/clean-feature-delivery/SKILL.md`
+- `.cursor/skills/owasp-security-review/SKILL.md`
+- `.cursor/skills/sonarqube-quality-gate/SKILL.md`
+- `.cursor/skills/release-readiness-check/SKILL.md`
+- `.cursor/skills/release-skills/SKILL.md`
+- `.cursor/skills/unit-test-mockery-suite/SKILL.md`
+
+### Commands
+- `.cursor/commands/implement-ticket.md`
+- `.cursor/commands/generate-unit-test.md`
 
 ## Git Hooks / Commit Template
 Install project commit hooks and commit message template:
